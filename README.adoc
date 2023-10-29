@@ -1,0 +1,29 @@
+= ArchUnit Spring Integration
+
+The ArchUnit Spring Integration is a small library to simplify writing https://github.com/TNG/ArchUnit[ArchUnit] tests for https://spring.io/projects[Spring] applications.
+
+== Examples
+
+Given the following class:
+[source,java]
+----
+@RestController
+class DemoRestController {
+
+    @GetMapping("/hello")
+    String hello() {
+        return "Hello World";
+    }
+}
+----
+
+You can write architecture rules like this:
+
+[source,java]
+----
+import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
+
+methods()
+        .that(are(springAnnotatedWith(RequestMapping.class)))
+        .should().beDeclaredInClassesThat(are(springAnnotatedWith(Controller.class)));
+----
