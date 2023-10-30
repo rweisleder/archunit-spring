@@ -8,6 +8,7 @@ import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaParameter;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 
 import java.lang.annotation.Annotation;
@@ -59,6 +60,41 @@ public final class MergedAnnotationPredicates {
         return describe("annotated with @" + annotationType.getSimpleName(), annotated -> {
             MergedAnnotations mergedAnnotations = getMergedAnnotations(annotated);
             return mergedAnnotations.isPresent(annotationType);
+        });
+    }
+
+    /**
+     * Returns a predicate that matches elements that are directly or meta-annotated with the given annotation type
+     * matching the given predicate.
+     * <p>
+     * As an example:
+     * <pre>{@code
+     * @RestController("demo")
+     * class DemoRestController {
+     * }
+     *
+     * // matches the class:
+     * springAnnotatedWith(RestController.class, describe("@RestController('demo')", restController -> restController.value().equals("demo"))
+     * springAnnotatedWith(Controller.class, describe("@Controller('demo')", controller -> controller.value().equals("demo"))
+     * springAnnotatedWith(Component.class, describe("@Component('demo')", component -> component.value().equals("demo"))
+     *
+     * // does not match the class:
+     * springAnnotatedWith(RestController.class, describe("@RestController('demoRestController')", restController -> restController.value().equals("demoRestController"))
+     * springAnnotatedWith(Service.class, describe("@Service('demo')", service -> service.value().equals("demo"))
+     * }</pre>
+     *
+     * @see CanBeAnnotated.Predicates#annotatedWith(DescribedPredicate)
+     * @see CanBeAnnotated.Predicates#metaAnnotatedWith(DescribedPredicate)
+     */
+    public static <T extends Annotation> DescribedPredicate<CanBeAnnotated> springAnnotatedWith(Class<T> annotationType, DescribedPredicate<T> predicate) {
+        return describe("annotated with " + predicate.getDescription(), annotated -> {
+            MergedAnnotation<T> mergedAnnotation = getMergedAnnotations(annotated).get(annotationType);
+            if (!mergedAnnotation.isPresent()) {
+                return false;
+            }
+
+            T synthesizedAnnotation = mergedAnnotation.synthesize();
+            return predicate.test(synthesizedAnnotation);
         });
     }
 

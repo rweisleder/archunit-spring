@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -171,6 +172,41 @@ class MergedAnnotationPredicatesTest {
         JavaParameter optionalAutowiredParameter = classWithMethodParameterAnnotation.getMethod("get", Object.class).getParameters().get(0);
         DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Lazy.class);
         assertThat(predicate).rejects(optionalAutowiredParameter);
+    }
+
+    @Test
+    void springAnnotatedWith_with_annotation_predicate_provides_a_description() {
+        DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Controller.class, describe("@Controller(value='')",
+                (Controller controller) -> controller.value().isEmpty()
+        ));
+        assertThat(predicate.getDescription()).isEqualTo("annotated with @Controller(value='')");
+    }
+
+    @Test
+    void springAnnotatedWith_with_annotation_predicate_accepts_matching_class_with_matching_predicate() {
+        JavaClass controllerClass = importClass(ControllerClass.class);
+        DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Controller.class, describe("@Controller(value='')",
+                (Controller controller) -> controller.value().isEmpty()
+        ));
+        assertThat(predicate).accepts(controllerClass);
+    }
+
+    @Test
+    void springAnnotatedWith_with_annotation_predicate_rejects_matching_class_with_non_matching_class() {
+        JavaClass controllerClass = importClass(ControllerClass.class);
+        DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Controller.class, describe("@Controller(value='hello')",
+                (Controller controller) -> controller.value().equals("hello")
+        ));
+        assertThat(predicate).rejects(controllerClass);
+    }
+
+    @Test
+    void springAnnotatedWith_with_annotation_predicate_rejects_non_matching_class() {
+        JavaClass controllerClass = importClass(ControllerClass.class);
+        DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Service.class, describe("@Service(value='')",
+                (Service service) -> service.value().isEmpty()
+        ));
+        assertThat(predicate).rejects(controllerClass);
     }
 
     private JavaClass importClass(Class<?> classToImport) {

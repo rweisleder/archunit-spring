@@ -23,7 +23,30 @@ You can write architecture rules like this:
 ----
 import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
 
+// "methods that are annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)
+//  should be declared in classes that are annotated with @Controller (or @RestController etc.)"
 methods()
-        .that(are(springAnnotatedWith(RequestMapping.class)))
-        .should().beDeclaredInClassesThat(are(springAnnotatedWith(Controller.class)));
+    .that(are(
+        springAnnotatedWith(RequestMapping.class)
+            .as("annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)"))
+    )
+    .should().beDeclaredInClassesThat(are(
+        springAnnotatedWith(Controller.class)
+            .as("annotated with @Controller (or @RestController etc.)")
+    ));
+
+
+// "methods that are annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)
+//  should have path containing only lowercase characters"
+methods()
+    .that(
+        are(springAnnotatedWith(RequestMapping.class)
+            .as("annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)"))
+    )
+    .should(
+        be(springAnnotatedWith(RequestMapping.class,
+            describe("@RequestMapping(path=<lower-case>)",
+                requestMapping -> Arrays.stream(requestMapping.path()).allMatch(path -> path.toLowerCase().equals(path))))
+        ).as("have path containing only lowercase characters")
+    );
 ----
