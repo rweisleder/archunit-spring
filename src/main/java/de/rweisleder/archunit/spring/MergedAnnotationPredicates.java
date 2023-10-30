@@ -98,6 +98,36 @@ public final class MergedAnnotationPredicates {
         });
     }
 
+    /**
+     * Returns a predicate that matches elements that are directly or meta-annotated with annotations matching the
+     * given predicate.
+     * <p>
+     * As an example:
+     * <pre>{@code
+     * @RestController
+     * class DemoRestController {
+     * }
+     *
+     * // matches the class:
+     * springAnnotatedWith(describe("@RestController", annotations -> annotations.isPresent(RestController.class)))
+     * springAnnotatedWith(describe("@Controller", annotations -> annotations.isPresent(Controller.class)))
+     * springAnnotatedWith(describe("@Component", annotations -> annotations.isPresent(Component.class)))
+     *
+     * // does not match the class:
+     * springAnnotatedWith(describe("@Controller", annotations -> annotations.isDirectlyPresent(Controller.class)))
+     * springAnnotatedWith(describe("@Service", annotations -> annotations.isPresent(Service.class)))
+     * }</pre>
+     *
+     * @see CanBeAnnotated.Predicates#annotatedWith(DescribedPredicate)
+     * @see CanBeAnnotated.Predicates#metaAnnotatedWith(DescribedPredicate)
+     */
+    public static DescribedPredicate<CanBeAnnotated> springAnnotatedWith(DescribedPredicate<MergedAnnotations> predicate) {
+        return describe("annotated with " + predicate.getDescription(), annotated -> {
+            MergedAnnotations mergedAnnotations = getMergedAnnotations(annotated);
+            return predicate.test(mergedAnnotations);
+        });
+    }
+
     private static MergedAnnotations getMergedAnnotations(CanBeAnnotated annotated) {
         AnnotatedElement annotatedElement = asAnnotatedElement(annotated);
         return MergedAnnotations.from(annotatedElement);

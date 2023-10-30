@@ -11,6 +11,7 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
@@ -206,6 +207,32 @@ class MergedAnnotationPredicatesTest {
         DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Service.class, describe("@Service(value='')",
                 (Service service) -> service.value().isEmpty()
         ));
+        assertThat(predicate).rejects(controllerClass);
+    }
+
+    @Test
+    void springAnnotatedWith_with_MergedAnnotations_predicate_provides_a_description() {
+        DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(describe("@Controller",
+                (MergedAnnotations annotations) -> annotations.isPresent(Controller.class))
+        );
+        assertThat(predicate.getDescription()).isEqualTo("annotated with @Controller");
+    }
+
+    @Test
+    void springAnnotatedWith_with_MergedAnnotations_predicate_accepts_matching_class() {
+        JavaClass controllerClass = importClass(ControllerClass.class);
+        DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(describe("@Controller",
+                (MergedAnnotations annotations) -> annotations.isPresent(Controller.class))
+        );
+        assertThat(predicate).accepts(controllerClass);
+    }
+
+    @Test
+    void springAnnotatedWith_with_MergedAnnotations_predicate_rejects_non_matching_class() {
+        JavaClass controllerClass = importClass(ControllerClass.class);
+        DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(describe("@Service",
+                (MergedAnnotations annotations) -> annotations.isPresent(Service.class))
+        );
         assertThat(predicate).rejects(controllerClass);
     }
 
