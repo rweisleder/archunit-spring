@@ -11,6 +11,7 @@
     <name>ArchUnit Spring Integration</name>
     <description>Small library to simplify writing ArchUnit tests for Spring applications</description>
     <url>https://github.com/rweisleder/archunit-spring</url>
+    <inceptionYear>2023</inceptionYear>
 
     <licenses>
         <license>
