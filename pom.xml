@@ -6,7 +6,7 @@
 
     <groupId>de.rweisleder</groupId>
     <artifactId>archunit-spring</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <name>ArchUnit Spring Integration</name>
     <description>Small library to simplify writing ArchUnit tests for Spring applications</description>

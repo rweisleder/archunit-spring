@@ -2,6 +2,20 @@
 
 The ArchUnit Spring Integration is a small library to simplify writing https://github.com/TNG/ArchUnit[ArchUnit] tests for https://spring.io/projects[Spring] applications.
 
+== Usage
+
+[source,xml]
+----
+<dependency>
+    <groupId>de.rweisleder</groupId>
+    <artifactId>archunit-spring</artifactId>
+    <version>0.1.0</version>
+    <scope>test</scope>
+</dependency>
+----
+
+The library expects that the required dependencies for Spring and ArchUnit are already declared.
+
 == Examples
 
 Given the following class:
