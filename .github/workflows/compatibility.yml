@@ -1,0 +1,28 @@
+name: Version compatibility tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  version_compatibility_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Compile
+        run: ./mvnw process-test-resources
+      - name: ArchUnit 1.0 / Spring 5.2
+        run: ./mvnw compiler:testCompile surefire:test -Darchunit.version=1.0.1 -Dspring.version=5.2.25.RELEASE
+      - name: ArchUnit 1.1 / Spring 5.3
+        run: ./mvnw compiler:testCompile surefire:test -Darchunit.version=1.1.0 -Dspring.version=5.3.30
+      - name: ArchUnit 1.1 / Spring 6.0
+        run: ./mvnw compiler:testCompile surefire:test -Darchunit.version=1.1.0 -Dspring.version=6.0.13
+      - name: ArchUnit 1.1 / Spring 6.1-RC
+        run: ./mvnw compiler:testCompile surefire:test -Darchunit.version=1.1.0 -Dspring.version=6.1.0-RC2 -Pspring-milestone

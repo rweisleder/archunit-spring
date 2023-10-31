@@ -16,6 +16,12 @@ The ArchUnit Spring Integration is a small library to simplify writing https://g
 
 The library expects that the required dependencies for Spring and ArchUnit are already declared.
 
+Compatible with:
+
+* Java 8+
+* ArchUnit 1.0+
+* Spring Framework 5.2+ / Spring Boot 2.2+
+
 == Examples
 
 Given the following class:
