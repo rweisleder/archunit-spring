@@ -21,4 +21,4 @@ jobs:
           JRELEASER_NEXUS2_USERNAME: ${{ secrets.JRELEASER_NEXUS2_USERNAME }}
           JRELEASER_NEXUS2_PASSWORD: ${{ secrets.JRELEASER_NEXUS2_PASSWORD }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./mvnw -Prelease deploy jreleaser:deploy
+        run: ./mvnw -B -ntp -Prelease deploy jreleaser:deploy
