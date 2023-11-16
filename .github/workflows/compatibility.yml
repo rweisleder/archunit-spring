@@ -23,8 +23,8 @@ jobs:
       - name: ArchUnit 1.1 / Spring 5.2
         run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.1.0 -Dspring.version=5.2.25.RELEASE
       - name: ArchUnit 1.2 / Spring 5.3
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=5.3.30
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=5.3.31
       - name: ArchUnit 1.2 / Spring 6.0
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=6.0.13
-      - name: ArchUnit 1.2 / Spring 6.1-RC
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=6.1.0-RC2 -Pspring-milestone
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=6.0.14
+      - name: ArchUnit 1.2 / Spring 6.1
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=6.1.0
