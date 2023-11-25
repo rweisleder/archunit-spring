@@ -124,6 +124,9 @@
                 <artifactId>flatten-maven-plugin</artifactId>
                 <configuration>
                     <flattenMode>ossrh</flattenMode>
+                    <pomElements>
+                        <profiles>remove</profiles>
+                    </pomElements>
                 </configuration>
                 <executions>
                     <execution>
