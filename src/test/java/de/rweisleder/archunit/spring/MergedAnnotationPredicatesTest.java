@@ -7,7 +7,6 @@ import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaParameter;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -24,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.TestUtils.importClass;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MergedAnnotationPredicatesTest {
@@ -234,10 +234,6 @@ class MergedAnnotationPredicatesTest {
                 (MergedAnnotations annotations) -> annotations.isPresent(Service.class))
         );
         assertThat(predicate).rejects(controllerClass);
-    }
-
-    private JavaClass importClass(Class<?> classToImport) {
-        return new ClassFileImporter().importClass(classToImport);
     }
 
     @Controller
