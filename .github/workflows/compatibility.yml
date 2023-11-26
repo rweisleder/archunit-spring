@@ -18,13 +18,17 @@ jobs:
           distribution: 'temurin'
       - name: Compile
         run: ./mvnw -B -ntp process-test-resources
-      - name: ArchUnit 1.0 / Spring 5.2
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.0.1 -Dspring.version=5.2.25.RELEASE
-      - name: ArchUnit 1.1 / Spring 5.2
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.1.0 -Dspring.version=5.2.25.RELEASE
-      - name: ArchUnit 1.2 / Spring 5.3
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=5.3.31
-      - name: ArchUnit 1.2 / Spring 6.0
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=6.0.14
-      - name: ArchUnit 1.2 / Spring 6.1
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0 -Dspring.version=6.1.0
+      - name: ArchUnit 1.0
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.0.1
+      - name: ArchUnit 1.1
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.1.0
+      - name: ArchUnit 1.2
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.0
+      - name: Spring Boot 2.7
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=2.7.18
+      - name: Spring Boot 3.0
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.0.13
+      - name: Spring Boot 3.1
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.1.6
+      - name: Spring Boot 3.2
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.2.0
