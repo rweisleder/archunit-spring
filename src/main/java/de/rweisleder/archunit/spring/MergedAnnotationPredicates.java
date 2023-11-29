@@ -17,6 +17,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
+import static com.tngtech.archunit.core.domain.Formatters.ensureSimpleName;
 
 /**
  * Collection of {@link DescribedPredicate predicates} that can be used with ArchUnit to check elements for the
@@ -60,6 +61,37 @@ public final class MergedAnnotationPredicates {
         return describe("annotated with @" + annotationType.getSimpleName(), annotated -> {
             MergedAnnotations mergedAnnotations = getMergedAnnotations(annotated);
             return mergedAnnotations.isPresent(annotationType);
+        });
+    }
+
+    /**
+     * Returns a predicate that matches elements that are directly or meta-annotated with the given annotation type.
+     * <p>
+     * As an example:
+     * <pre>{@code
+     * @RestController
+     * class DemoRestController {
+     * }
+     *
+     * // matches the class:
+     * springAnnotatedWith("org.springframework.web.bind.annotation.RestController")
+     * springAnnotatedWith("org.springframework.stereotype.Controller")
+     * springAnnotatedWith("org.springframework.stereotype.Component")
+     * springAnnotatedWith("org.springframework.web.bind.annotation.ResponseBody")
+     *
+     * // does not match the class:
+     * springAnnotatedWith("org.springframework.stereotype.Service")
+     * }</pre>
+     *
+     * @param annotationTypeName the fully qualified class name of the annotation type to check
+     * @see MergedAnnotations#isPresent(String)
+     * @see CanBeAnnotated.Predicates#annotatedWith(String)
+     * @see CanBeAnnotated.Predicates#metaAnnotatedWith(String)
+     */
+    public static DescribedPredicate<CanBeAnnotated> springAnnotatedWith(String annotationTypeName) {
+        return describe("annotated with @" + ensureSimpleName(annotationTypeName), annotated -> {
+            MergedAnnotations mergedAnnotations = getMergedAnnotations(annotated);
+            return mergedAnnotations.isPresent(annotationTypeName);
         });
     }
 

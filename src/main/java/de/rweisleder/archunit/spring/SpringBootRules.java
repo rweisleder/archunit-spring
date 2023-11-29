@@ -5,7 +5,6 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.conditions.ArchConditions;
-import org.springframework.boot.SpringBootConfiguration;
 
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +49,7 @@ public class SpringBootRules {
             @Override
             public void init(Collection<JavaClass> javaClasses) {
                 List<JavaClass> springBootApplicationClasses = javaClasses.stream()
-                        .filter(springAnnotatedWith(SpringBootConfiguration.class))
+                        .filter(springAnnotatedWith("org.springframework.boot.SpringBootConfiguration"))
                         .collect(toList());
 
                 if (springBootApplicationClasses.isEmpty()) {
