@@ -202,6 +202,13 @@ class MergedAnnotationPredicatesTest {
             DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith("org.springframework.stereotype.Service");
             assertThat(predicate).rejects(controllerClass);
         }
+
+        @Test
+        void rejects_any_class_if_annotation_is_absent() {
+            JavaClass controllerClass = importClass(ControllerClass.class);
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith("org.example.UnknownType");
+            assertThat(predicate).rejects(controllerClass);
+        }
     }
 
     @Nested
