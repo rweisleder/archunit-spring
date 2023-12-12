@@ -22,7 +22,7 @@
     </licenses>
 
     <properties>
-        <archunit.version>1.2.0</archunit.version>
+        <archunit.version>1.2.1</archunit.version>
         <assertj.version>3.24.2</assertj.version>
         <junit-jupiter.version>5.10.1</junit-jupiter.version>
         <spring-boot.version>3.2.0</spring-boot.version>
