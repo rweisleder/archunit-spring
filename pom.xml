@@ -103,6 +103,20 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>2.3.0</version>
+                    <configuration>
+                        <licenseName>apache_v2</licenseName>
+                        <roots>
+                            <root>${project.build.sourceDirectory}</root>
+                            <root>${project.build.testSourceDirectory}</root>
+                        </roots>
+                        <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                        <useJavaNoReformatCommentStartTag>false</useJavaNoReformatCommentStartTag>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
                     <version>1.5.0</version>
                 </plugin>
@@ -146,6 +160,40 @@
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>update-license-header</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>check-license-header</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check-file-header</goal>
+                        </goals>
+                        <configuration>
+                            <failOnMissingHeader>true</failOnMissingHeader>
+                            <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-license-file</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>update-project-license</goal>
+                        </goals>
+                        <configuration>
+                            <licenseFile>${project.basedir}/LICENSE</licenseFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <configuration>
                     <flattenMode>ossrh</flattenMode>
@@ -174,6 +222,14 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>no-license-header-update</id>
+
+            <properties>
+                <license.skipUpdateLicense>true</license.skipUpdateLicense>
+            </properties>
+        </profile>
+
         <profile>
             <id>release</id>
 
@@ -265,6 +321,11 @@
             <email>roland@rweisleder.de</email>
         </developer>
     </developers>
+
+    <organization>
+        <name>Roland Weisleder</name>
+        <url>https://rweisleder.de/</url>
+    </organization>
 
     <scm>
         <connection>scm:git:git://github.com/rweisleder/archunit-spring.git</connection>

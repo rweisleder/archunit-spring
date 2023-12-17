@@ -17,7 +17,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Compile
-        run: ./mvnw -B -ntp process-test-resources
+        run: ./mvnw -B -ntp process-test-resources -Pno-license-header-update
       - name: ArchUnit 1.0
         run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.0.1
       - name: ArchUnit 1.1
