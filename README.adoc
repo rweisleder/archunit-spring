@@ -2,6 +2,10 @@
 
 The ArchUnit Spring Integration is a small library to simplify writing https://github.com/TNG/ArchUnit[ArchUnit] tests for https://spring.io/projects[Spring] applications.
 
+image:https://maven-badges.herokuapp.com/maven-central/de.rweisleder/archunit-spring/badge.svg[link="https://central.sonatype.com/artifact/de.rweisleder/archunit-spring", title="Maven Central"]
+image:https://javadoc.io/badge2/de.rweisleder/archunit-spring/javadoc.svg[link="https://javadoc.io/doc/de.rweisleder/archunit-spring", title="Javadoc"]
+image:https://img.shields.io/github/license/rweisleder/archunit-spring.svg[link="https://github.com/rweisleder/archunit-spring/blob/main/LICENSE", title="License"]
+
 == Usage
 
 [source,xml]

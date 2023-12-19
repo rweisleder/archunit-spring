@@ -26,6 +26,7 @@
         <assertj.version>3.24.2</assertj.version>
         <junit-jupiter.version>5.10.1</junit-jupiter.version>
         <spring-boot.version>3.2.0</spring-boot.version>
+        <spring-framework.version>6.1.1</spring-framework.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -52,6 +53,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+            <version>${spring-framework.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -124,6 +126,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.6.3</version>
+                    <configuration>
+                        <links>
+                            <link>https://javadoc.io/doc/com.tngtech.archunit/archunit/${archunit.version}/</link>
+                            <link>https://docs.spring.io/spring-framework/docs/${spring-framework.version}/javadoc-api/</link>
+                        </links>
+                        <doclint>all,-missing</doclint>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
