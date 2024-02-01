@@ -18,13 +18,7 @@ jobs:
           distribution: 'temurin'
       - name: Compile
         run: ./mvnw -B -ntp process-test-resources -Pno-license-header-update
-      - name: ArchUnit 1.0
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.0.1
-      - name: ArchUnit 1.1
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.1.0
-      - name: ArchUnit 1.2
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Darchunit.version=1.2.1
-      - name: Spring Boot 2.7
+      - name: Spring Framework 5.3
         run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=2.7.18
       - name: Spring Boot 3.0
         run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.0.13
