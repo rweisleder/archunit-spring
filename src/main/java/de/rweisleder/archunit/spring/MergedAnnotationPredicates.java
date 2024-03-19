@@ -20,10 +20,12 @@
 package de.rweisleder.archunit.spring;
 
 import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaConstructor;
 import com.tngtech.archunit.core.domain.JavaField;
+import com.tngtech.archunit.core.domain.JavaMember;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaParameter;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
@@ -34,6 +36,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.core.domain.Formatters.ensureSimpleName;
@@ -77,10 +80,9 @@ public final class MergedAnnotationPredicates {
      * @see CanBeAnnotated.Predicates#metaAnnotatedWith(Class)
      */
     public static DescribedPredicate<CanBeAnnotated> springAnnotatedWith(Class<? extends Annotation> annotationType) {
-        return describe("annotated with @" + annotationType.getSimpleName(), annotated -> {
-            MergedAnnotations mergedAnnotations = getMergedAnnotations(annotated);
+        return springAnnotatedWith(describe("@" + annotationType.getSimpleName(), mergedAnnotations -> {
             return mergedAnnotations.isPresent(annotationType);
-        });
+        }));
     }
 
     /**
@@ -108,10 +110,9 @@ public final class MergedAnnotationPredicates {
      * @see CanBeAnnotated.Predicates#metaAnnotatedWith(String)
      */
     public static DescribedPredicate<CanBeAnnotated> springAnnotatedWith(String annotationTypeName) {
-        return describe("annotated with @" + ensureSimpleName(annotationTypeName), annotated -> {
-            MergedAnnotations mergedAnnotations = getMergedAnnotations(annotated);
+        return springAnnotatedWith(describe("@" + ensureSimpleName(annotationTypeName), mergedAnnotations -> {
             return mergedAnnotations.isPresent(annotationTypeName);
-        });
+        }));
     }
 
     /**
@@ -138,15 +139,15 @@ public final class MergedAnnotationPredicates {
      * @see CanBeAnnotated.Predicates#metaAnnotatedWith(DescribedPredicate)
      */
     public static <T extends Annotation> DescribedPredicate<CanBeAnnotated> springAnnotatedWith(Class<T> annotationType, DescribedPredicate<T> predicate) {
-        return describe("annotated with " + predicate.getDescription(), annotated -> {
-            MergedAnnotation<T> mergedAnnotation = getMergedAnnotations(annotated).get(annotationType);
+        return springAnnotatedWith(describe(predicate.getDescription(), mergedAnnotations -> {
+            MergedAnnotation<T> mergedAnnotation = mergedAnnotations.get(annotationType);
             if (!mergedAnnotation.isPresent()) {
                 return false;
             }
 
             T synthesizedAnnotation = mergedAnnotation.synthesize();
             return predicate.test(synthesizedAnnotation);
-        });
+        }));
     }
 
     /**
@@ -174,14 +175,14 @@ public final class MergedAnnotationPredicates {
      */
     public static DescribedPredicate<CanBeAnnotated> springAnnotatedWith(DescribedPredicate<MergedAnnotations> predicate) {
         return describe("annotated with " + predicate.getDescription(), annotated -> {
-            MergedAnnotations mergedAnnotations = getMergedAnnotations(annotated);
+            AnnotatedElement annotatedElement = asAnnotatedElement(annotated);
+            if (annotatedElement == null) {
+                return false;
+            }
+
+            MergedAnnotations mergedAnnotations = MergedAnnotations.from(annotatedElement);
             return predicate.test(mergedAnnotations);
         });
-    }
-
-    private static MergedAnnotations getMergedAnnotations(CanBeAnnotated annotated) {
-        AnnotatedElement annotatedElement = asAnnotatedElement(annotated);
-        return MergedAnnotations.from(annotatedElement);
     }
 
     private static AnnotatedElement asAnnotatedElement(CanBeAnnotated annotated) {
@@ -214,6 +215,17 @@ public final class MergedAnnotationPredicates {
                 Method method = ((JavaMethod) owner).reflect();
                 return method.getParameters()[index];
             }
+        }
+
+        if (annotated instanceof AccessTarget) {
+            Optional<? extends JavaMember> accessedMember = ((AccessTarget) annotated).resolveMember();
+            if (!accessedMember.isPresent()) {
+                // If the accessedMember is not present, this indicates that the owning class of accessedMember was not imported.
+                // For strategies on handling such cases of missing classes, refer to the "Dealing with Missing Classes" section in the ArchUnit documentation.
+                // In such cases, the method AccessTarget#isAnnotatedWith(..) will return false.
+                return null;
+            }
+            return asAnnotatedElement(accessedMember.get());
         }
 
         throw new RuntimeException(annotated + " cannot be converted to " + AnnotatedElement.class);

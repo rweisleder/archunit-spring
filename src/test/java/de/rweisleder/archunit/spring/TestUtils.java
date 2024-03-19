@@ -19,6 +19,7 @@
  */
 package de.rweisleder.archunit.spring;
 
+import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -30,6 +31,11 @@ public class TestUtils {
     }
 
     public static JavaClass importClass(Class<?> classToImport) {
+        return new ClassFileImporter().importClass(classToImport);
+    }
+
+    public static JavaClass importOnlyClass(Class<?> classToImport) {
+        ArchConfiguration.get().setResolveMissingDependenciesFromClassPath(false);
         return new ClassFileImporter().importClass(classToImport);
     }
 }

@@ -19,13 +19,21 @@
  */
 package de.rweisleder.archunit.spring;
 
+import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.AccessTarget.ConstructorCallTarget;
+import com.tngtech.archunit.core.domain.AccessTarget.FieldAccessTarget;
+import com.tngtech.archunit.core.domain.AccessTarget.MethodCallTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaConstructor;
+import com.tngtech.archunit.core.domain.JavaConstructorCall;
 import com.tngtech.archunit.core.domain.JavaField;
+import com.tngtech.archunit.core.domain.JavaFieldAccess;
 import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.domain.JavaParameter;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +52,15 @@ import java.lang.annotation.RetentionPolicy;
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
 import static de.rweisleder.archunit.spring.TestUtils.importClass;
+import static de.rweisleder.archunit.spring.TestUtils.importOnlyClass;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MergedAnnotationPredicatesTest {
+
+    @AfterEach
+    void resetArchUnitConfiguration() {
+        ArchConfiguration.get().reset();
+    }
 
     @Nested
     class Predicate_springAnnotatedWith_with_Class {
@@ -197,6 +211,123 @@ class MergedAnnotationPredicatesTest {
             DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Lazy.class);
             assertThat(predicate).rejects(optionalAutowiredParameter);
         }
+
+        @Test
+        void accepts_field_access_target_with_annotation_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaFieldAccess accessToOptionalAutowiredField = classWithAccesses.getMethod("methodAccessingAnnotatedField").getFieldAccesses().iterator().next();
+            FieldAccessTarget accessedOptionalAutowiredField = accessToOptionalAutowiredField.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(OptionalAutowired.class);
+            assertThat(predicate).accepts(accessedOptionalAutowiredField);
+        }
+
+        @Test
+        void accepts_field_access_target_with_annotation_meta_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaFieldAccess accessToOptionalAutowiredField = classWithAccesses.getMethod("methodAccessingAnnotatedField").getFieldAccesses().iterator().next();
+            FieldAccessTarget accessedOptionalAutowiredField = accessToOptionalAutowiredField.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Autowired.class);
+            assertThat(predicate).accepts(accessedOptionalAutowiredField);
+        }
+
+        @Test
+        void rejects_field_access_target_with_annotation_not_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaFieldAccess accessToOptionalAutowiredField = classWithAccesses.getMethod("methodAccessingAnnotatedField").getFieldAccesses().iterator().next();
+            FieldAccessTarget accessedOptionalAutowiredField = accessToOptionalAutowiredField.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Lazy.class);
+            assertThat(predicate).rejects(accessedOptionalAutowiredField);
+        }
+
+        /**
+         * @see FieldAccessTarget#isAnnotatedWith(Class)
+         */
+        @Test
+        void rejects_not_imported_field_access_target_with_annotation_present_on_target() {
+            JavaClass classWithAccesses = importOnlyClass(ClassWithAccesses.class);
+            JavaFieldAccess accessToOptionalAutowiredField = classWithAccesses.getMethod("methodAccessingAnnotatedField").getFieldAccesses().iterator().next();
+            FieldAccessTarget accessedOptionalAutowiredField = accessToOptionalAutowiredField.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(OptionalAutowired.class);
+            assertThat(predicate).rejects(accessedOptionalAutowiredField);
+        }
+
+        @Test
+        void accepts_constructor_call_target_with_annotation_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaConstructorCall callToOptionalAutowiredConstructor = classWithAccesses.getMethod("methodAccessingAnnotatedConstructor").getConstructorCallsFromSelf().iterator().next();
+            ConstructorCallTarget calledOptionalAutowiredConstructor = callToOptionalAutowiredConstructor.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(OptionalAutowired.class);
+            assertThat(predicate).accepts(calledOptionalAutowiredConstructor);
+        }
+
+        @Test
+        void accepts_constructor_call_target_with_annotation_meta_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaConstructorCall callToOptionalAutowiredConstructor = classWithAccesses.getMethod("methodAccessingAnnotatedConstructor").getConstructorCallsFromSelf().iterator().next();
+            ConstructorCallTarget calledOptionalAutowiredConstructor = callToOptionalAutowiredConstructor.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Autowired.class);
+            assertThat(predicate).accepts(calledOptionalAutowiredConstructor);
+        }
+
+        @Test
+        void rejects_constructor_call_target_with_annotation_not_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaConstructorCall callToOptionalAutowiredConstructor = classWithAccesses.getMethod("methodAccessingAnnotatedConstructor").getConstructorCallsFromSelf().iterator().next();
+            ConstructorCallTarget calledOptionalAutowiredConstructor = callToOptionalAutowiredConstructor.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Lazy.class);
+            assertThat(predicate).rejects(calledOptionalAutowiredConstructor);
+        }
+
+        /**
+         * @see ConstructorCallTarget#isAnnotatedWith(Class)
+         */
+        @Test
+        void rejects_not_imported_constructor_call_target_with_annotation_present_on_target() {
+            JavaClass classWithAccesses = importOnlyClass(ClassWithAccesses.class);
+            JavaConstructorCall callToOptionalAutowiredConstructor = classWithAccesses.getMethod("methodAccessingAnnotatedConstructor").getConstructorCallsFromSelf().iterator().next();
+            ConstructorCallTarget calledOptionalAutowiredConstructor = callToOptionalAutowiredConstructor.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(OptionalAutowired.class);
+            assertThat(predicate).rejects(calledOptionalAutowiredConstructor);
+        }
+
+        @Test
+        void accepts_method_call_target_with_annotation_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaMethodCall callToGetMappingMethod = classWithAccesses.getMethod("methodAccessingAnnotatedMethod").getMethodCallsFromSelf().iterator().next();
+            MethodCallTarget calledGetMappingMethod = callToGetMappingMethod.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(GetMapping.class);
+            assertThat(predicate).accepts(calledGetMappingMethod);
+        }
+
+        @Test
+        void accepts_method_call_target_with_annotation_meta_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaMethodCall callToGetMappingMethod = classWithAccesses.getMethod("methodAccessingAnnotatedMethod").getMethodCallsFromSelf().iterator().next();
+            MethodCallTarget calledGetMappingMethod = callToGetMappingMethod.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(RequestMapping.class);
+            assertThat(predicate).accepts(calledGetMappingMethod);
+        }
+
+        @Test
+        void rejects_method_call_target_with_annotation_not_present_on_target() {
+            JavaClass classWithAccesses = importClass(ClassWithAccesses.class);
+            JavaMethodCall callToGetMappingMethod = classWithAccesses.getMethod("methodAccessingAnnotatedMethod").getMethodCallsFromSelf().iterator().next();
+            MethodCallTarget calledGetMappingMethod = callToGetMappingMethod.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(PostMapping.class);
+            assertThat(predicate).rejects(calledGetMappingMethod);
+        }
+
+        /**
+         * @see MethodCallTarget#isAnnotatedWith(Class)
+         */
+        @Test
+        void rejects_not_imported_method_call_target_with_annotation_present_on_target() {
+            JavaClass classWithAccesses = importOnlyClass(ClassWithAccesses.class);
+            JavaMethodCall callToGetMappingMethod = classWithAccesses.getMethod("methodAccessingAnnotatedMethod").getMethodCallsFromSelf().iterator().next();
+            MethodCallTarget calledGetMappingMethod = callToGetMappingMethod.getTarget();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(GetMapping.class);
+            assertThat(predicate).rejects(calledGetMappingMethod);
+        }
     }
 
     @Nested
@@ -336,6 +467,24 @@ class MergedAnnotationPredicatesTest {
 
         @SuppressWarnings("unused")
         void get(@OptionalAutowired Object o) {
+        }
+    }
+
+    static class ClassWithAccesses {
+
+        @SuppressWarnings("unused")
+        void methodAccessingAnnotatedField() {
+            Object o = new ClassWithFieldAnnotation().o;
+        }
+
+        @SuppressWarnings("unused")
+        void methodAccessingAnnotatedConstructor() {
+            new ClassWithConstructorAnnotation();
+        }
+
+        @SuppressWarnings("unused")
+        void methodAccessingAnnotatedMethod() {
+            new ClassWithMethodAnnotation().get();
         }
     }
 
