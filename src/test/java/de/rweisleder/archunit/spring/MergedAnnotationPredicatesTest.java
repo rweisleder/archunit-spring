@@ -32,6 +32,7 @@ import com.tngtech.archunit.core.domain.JavaFieldAccess;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.domain.JavaParameter;
+import com.tngtech.archunit.core.domain.JavaStaticInitializer;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
@@ -90,6 +91,15 @@ class MergedAnnotationPredicatesTest {
             JavaClass controllerClass = importClass(ControllerClass.class);
             DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(Service.class);
             assertThat(predicate).rejects(controllerClass);
+        }
+
+        @Test
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        void rejects_static_initializer() {
+            JavaClass classWithStaticInitializer = importClass(ClassWithStaticInitializer.class);
+            JavaStaticInitializer staticInitializer = classWithStaticInitializer.getStaticInitializer().get();
+            DescribedPredicate<CanBeAnnotated> predicate = springAnnotatedWith(OptionalAutowired.class);
+            assertThat(predicate).rejects(staticInitializer);
         }
 
         @Test
@@ -485,6 +495,12 @@ class MergedAnnotationPredicatesTest {
         @SuppressWarnings("unused")
         void methodAccessingAnnotatedMethod() {
             new ClassWithMethodAnnotation().get();
+        }
+    }
+
+    @SuppressWarnings("EmptyClassInitializer")
+    static class ClassWithStaticInitializer {
+        static {
         }
     }
 

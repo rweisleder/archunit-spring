@@ -28,6 +28,7 @@ import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMember;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaParameter;
+import com.tngtech.archunit.core.domain.JavaStaticInitializer;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -188,6 +189,11 @@ public final class MergedAnnotationPredicates {
     private static AnnotatedElement asAnnotatedElement(CanBeAnnotated annotated) {
         if (annotated instanceof JavaClass) {
             return ((JavaClass) annotated).reflect();
+        }
+
+        if (annotated instanceof JavaStaticInitializer) {
+            // Contrary to the JLS, ArchUnit considers static initializers to have annotations.
+            return null;
         }
 
         if (annotated instanceof JavaField) {
