@@ -23,8 +23,8 @@ jobs:
       - name: Spring Boot 3.0
         run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.0.13
       - name: Spring Boot 3.1
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.1.9
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.1.10
       - name: Spring Boot 3.2
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.2.3
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.2.4
       - name: Spring Boot 3.3
-        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.3.0-M2 -Pspring-milestone
+        run: ./mvnw -B -ntp compiler:testCompile surefire:test -Dspring-boot.version=3.3.0-M3 -Pspring-milestone

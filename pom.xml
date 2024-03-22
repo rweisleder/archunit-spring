@@ -25,8 +25,8 @@
         <archunit.version>1.2.1</archunit.version>
         <assertj.version>3.25.3</assertj.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
-        <spring-boot.version>3.2.3</spring-boot.version>
-        <spring-framework.version>6.1.4</spring-framework.version>
+        <spring-boot.version>3.2.4</spring-boot.version>
+        <spring-framework.version>6.1.5</spring-framework.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -87,7 +87,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.12.1</version>
+                    <version>3.13.0</version>
                     <configuration>
                         <release>8</release>
                     </configuration>
@@ -141,7 +141,7 @@
                 <plugin>
                     <groupId>org.jreleaser</groupId>
                     <artifactId>jreleaser-maven-plugin</artifactId>
-                    <version>1.10.0</version>
+                    <version>1.11.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
