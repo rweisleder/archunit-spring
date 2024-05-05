@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static de.rweisleder.archunit.spring.SpringComponentPredicates.springComponent;
+import static de.rweisleder.archunit.spring.SpringComponentPredicates.springConfiguration;
 import static de.rweisleder.archunit.spring.SpringComponentPredicates.springController;
 import static de.rweisleder.archunit.spring.SpringComponentPredicates.springRepository;
 import static de.rweisleder.archunit.spring.SpringComponentPredicates.springService;
@@ -77,8 +78,8 @@ class SpringComponentPredicatesTest {
 
         @Test
         void provides_a_description() {
-            DescribedPredicate<JavaClass> predicate = springController();
-            assertThat(predicate.getDescription()).isEqualTo("Spring controller");
+            DescribedPredicate<JavaClass> predicate = springConfiguration();
+            assertThat(predicate.getDescription()).isEqualTo("Spring configuration");
         }
     }
 }
