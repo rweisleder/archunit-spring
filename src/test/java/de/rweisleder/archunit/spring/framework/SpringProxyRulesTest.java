@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,25 +24,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SpringCacheRulesTest {
+class SpringProxyRulesTest {
 
     @Nested
-    class Rule_CacheableMethodIsProxyable {
+    class Condition_beProxyable {
 
         @Test
         void provides_a_description() {
-            String description = SpringCacheRules.CacheableMethodIsProxyable.getDescription();
-            assertThat(description).isEqualTo("methods that are annotated with @Cacheable should be proxyable");
-        }
-    }
-
-    @Nested
-    class Rule_CacheableMethodNotCalledFromSameClass {
-
-        @Test
-        void provides_a_description() {
-            String description = SpringCacheRules.CacheableMethodNotCalledFromSameClass.getDescription();
-            assertThat(description).isEqualTo("methods that are annotated with @Cacheable should not be called from within the same class");
+            String description = SpringProxyRules.beProxyable().getDescription();
+            assertThat(description).isEqualTo("be proxyable");
         }
     }
 }

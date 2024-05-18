@@ -19,16 +19,25 @@
  */
 package de.rweisleder.archunit.spring.framework;
 
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
+import com.tngtech.archunit.lang.AbstractClassesTransformer;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.ClassesTransformer;
 import com.tngtech.archunit.lang.ConditionEvents;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 
 /**
  * Collection of {@link ArchRule rules} that can be used to check the usage of Spring's generic cache abstraction.
@@ -36,6 +45,33 @@ import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnn
  * @author Roland Weisleder
  */
 public class SpringCacheRules {
+
+    /**
+     * A rule that checks that Spring can create proxies for methods that are annotated with {@code @Cacheable}.
+     * It is most convenient for Spring if such methods are public and not final,
+     * and the bean classes containing these methods are also not final.
+     * <p>
+     * If Spring can not create a proxy for a method, this can lead to an exception when starting the context
+     * or to unexpected behavior when calling the method.
+     *
+     * @see SpringProxyRules#beProxyable()
+     */
+    public static final ArchRule CacheableMethodIsProxyable = all(availableMethods())
+            .that(are(springAnnotatedWith("org.springframework.cache.annotation.Cacheable")))
+            .should(beProxyable());
+
+    private static ClassesTransformer<JavaMethod> availableMethods() {
+        return new AbstractClassesTransformer<JavaMethod>("methods") {
+            @Override
+            public Iterable<JavaMethod> doTransform(JavaClasses javaClasses) {
+                Set<JavaMethod> availableMethods = new HashSet<>();
+                for (JavaClass javaClass : javaClasses) {
+                    availableMethods.addAll(javaClass.getAllMethods());
+                }
+                return availableMethods;
+            }
+        };
+    }
 
     /**
      * A rule that checks that methods annotated with {@code @Cacheable} are not called from within the same class.
