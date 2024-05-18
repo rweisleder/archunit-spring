@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package de.rweisleder.archunit.spring;
+package de.rweisleder.archunit.spring.boot;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -30,7 +30,7 @@ import java.util.List;
 
 import static com.tngtech.archunit.lang.conditions.ArchConditions.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -38,7 +38,10 @@ import static java.util.stream.Collectors.toList;
  *
  * @author Roland Weisleder
  */
-public class SpringBootRules {
+public final class SpringBootRules {
+
+    private SpringBootRules() {
+    }
 
     /**
      * A rule that checks that all classes are located in the same package or a sub-package of the application class.

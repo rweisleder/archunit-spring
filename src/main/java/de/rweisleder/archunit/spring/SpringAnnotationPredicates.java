@@ -52,9 +52,9 @@ import static com.tngtech.archunit.core.domain.Formatters.ensureSimpleName;
  * @see MergedAnnotations
  * @see CanBeAnnotated.Predicates
  */
-public final class MergedAnnotationPredicates {
+public final class SpringAnnotationPredicates {
 
-    private MergedAnnotationPredicates() {
+    private SpringAnnotationPredicates() {
     }
 
     /**

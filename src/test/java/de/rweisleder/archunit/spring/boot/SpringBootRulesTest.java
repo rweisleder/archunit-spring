@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package de.rweisleder.archunit.spring;
+package de.rweisleder.archunit.spring.boot;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

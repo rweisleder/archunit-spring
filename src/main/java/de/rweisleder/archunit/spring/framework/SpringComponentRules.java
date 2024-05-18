@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package de.rweisleder.archunit.spring;
+package de.rweisleder.archunit.spring.framework;
 
 import com.tngtech.archunit.lang.ArchRule;
 
@@ -25,10 +25,10 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClasse
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springConfiguration;
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springController;
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springRepository;
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springService;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springConfiguration;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springController;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springRepository;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springService;
 
 /**
  * Collection of {@link ArchRule rules} that can be used to check the dependencies between Spring components
@@ -36,7 +36,10 @@ import static de.rweisleder.archunit.spring.SpringComponentPredicates.springServ
  *
  * @author Roland Weisleder
  */
-public class SpringComponentRules {
+public final class SpringComponentRules {
+
+    private SpringComponentRules() {
+    }
 
     /**
      * A rule that checks that all {@link SpringComponentPredicates#springController() controller classes}

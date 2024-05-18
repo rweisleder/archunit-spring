@@ -17,21 +17,24 @@
  * limitations under the License.
  * #L%
  */
-package de.rweisleder.archunit.spring;
+package de.rweisleder.archunit.spring.framework;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
-import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 
 /**
  * Collection of {@link DescribedPredicate predicates} that can be used to match the different Spring stereotypes.
  *
  * @author Roland Weisleder
  */
-public class SpringComponentPredicates {
+public final class SpringComponentPredicates {
+
+    private SpringComponentPredicates() {
+    }
 
     /**
      * Returns a predicate that matches classes that are Spring components.

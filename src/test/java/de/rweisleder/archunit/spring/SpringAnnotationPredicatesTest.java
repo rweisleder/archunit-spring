@@ -27,10 +27,10 @@ import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.stereotype.Controller;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
-import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MergedAnnotationPredicatesTest {
+class SpringAnnotationPredicatesTest {
 
     @Nested
     class Predicate_springAnnotatedWith_with_Class {

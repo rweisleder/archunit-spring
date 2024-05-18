@@ -17,18 +17,18 @@
  * limitations under the License.
  * #L%
  */
-package de.rweisleder.archunit.spring;
+package de.rweisleder.archunit.spring.framework;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springComponent;
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springConfiguration;
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springController;
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springRepository;
-import static de.rweisleder.archunit.spring.SpringComponentPredicates.springService;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springComponent;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springConfiguration;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springController;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springRepository;
+import static de.rweisleder.archunit.spring.framework.SpringComponentPredicates.springService;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SpringComponentPredicatesTest {

@@ -36,7 +36,7 @@ import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
-import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 
 /**
@@ -44,7 +44,10 @@ import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyab
  *
  * @author Roland Weisleder
  */
-public class SpringCacheRules {
+public final class SpringCacheRules {
+
+    private SpringCacheRules() {
+    }
 
     /**
      * A rule that checks that Spring can create proxies for methods that are annotated with {@code @Cacheable}.

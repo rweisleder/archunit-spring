@@ -36,7 +36,10 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.notBePrivate;
  *
  * @author Roland Weisleder
  */
-public class SpringProxyRules {
+public final class SpringProxyRules {
+
+    private SpringProxyRules() {
+    }
 
     /**
      * A condition that checks that Spring can create proxies for the given methods.
