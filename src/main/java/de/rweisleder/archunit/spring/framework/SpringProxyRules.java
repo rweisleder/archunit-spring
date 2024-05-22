@@ -21,11 +21,13 @@ package de.rweisleder.archunit.spring.framework;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import org.springframework.util.ClassUtils;
 
+import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beProtected;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.bePublic;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBeFinal;
@@ -93,6 +95,26 @@ public final class SpringProxyRules {
                     }
                 }
                 return false;
+            }
+        };
+    }
+
+    /**
+     * A condition that checks that the given methods are not called from within the same class.
+     * Such internal calls bypass Spring's proxy mechanism, causing the intended caching behavior to be ignored.
+     * <p>
+     * This condition should only be used for JDK proxy-based advices.
+     */
+    public static ArchCondition<JavaMethod> notBeCalledFromWithinTheSameClass() {
+        return new ArchCondition<JavaMethod>("not be called from within the same class") {
+            @Override
+            public void check(JavaMethod method, ConditionEvents events) {
+                for (JavaMethodCall methodCall : method.getCallsOfSelf()) {
+                    boolean calledFromWithinSameClass = methodCall.getOriginOwner().equals(methodCall.getTargetOwner());
+                    if (calledFromWithinSameClass) {
+                        events.add(violated(method, methodCall.getDescription()));
+                    }
+                }
             }
         };
     }

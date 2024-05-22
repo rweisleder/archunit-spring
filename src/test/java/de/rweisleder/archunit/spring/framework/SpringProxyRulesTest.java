@@ -35,4 +35,14 @@ class SpringProxyRulesTest {
             assertThat(description).isEqualTo("be proxyable");
         }
     }
+
+    @Nested
+    class Condition_notBeCalledFromWithinTheSameClass {
+
+        @Test
+        void provides_a_description() {
+            String description = SpringProxyRules.notBeCalledFromWithinTheSameClass().getDescription();
+            assertThat(description).isEqualTo("not be called from within the same class");
+        }
+    }
 }

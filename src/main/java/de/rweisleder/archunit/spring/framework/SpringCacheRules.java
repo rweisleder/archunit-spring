@@ -22,22 +22,19 @@ package de.rweisleder.archunit.spring.framework;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.lang.AbstractClassesTransformer;
-import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ClassesTransformer;
-import com.tngtech.archunit.lang.ConditionEvents;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
+import static de.rweisleder.archunit.spring.framework.SpringProxyRules.notBeCalledFromWithinTheSameClass;
 
 /**
  * Collection of {@link ArchRule rules} that can be used to check the usage of Spring's generic cache abstraction.
@@ -59,7 +56,7 @@ public final class SpringCacheRules {
      *
      * @see SpringProxyRules#beProxyable()
      */
-    public static final ArchRule CacheableMethodIsProxyable = all(availableMethods())
+    public static final ArchRule CacheableMethodsAreProxyable = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.cache.annotation.Cacheable")))
             .should(beProxyable());
 
@@ -97,22 +94,10 @@ public final class SpringCacheRules {
      * }</pre>
      * <p>
      * This rule should only be used if caching is used in proxy mode, see the {@code @EnableCaching} annotation.
+     *
+     * @see SpringProxyRules#notBeCalledFromWithinTheSameClass()
      */
-    public static final ArchRule CacheableMethodNotCalledFromSameClass = methods()
+    public static final ArchRule CacheableMethodsNotCalledFromSameClass = methods()
             .that(are(springAnnotatedWith("org.springframework.cache.annotation.Cacheable")))
             .should(notBeCalledFromWithinTheSameClass());
-
-    private static ArchCondition<JavaMethod> notBeCalledFromWithinTheSameClass() {
-        return new ArchCondition<JavaMethod>("not be called from within the same class") {
-            @Override
-            public void check(JavaMethod method, ConditionEvents events) {
-                for (JavaMethodCall methodCall : method.getCallsOfSelf()) {
-                    boolean calledFromWithinSameClass = methodCall.getOriginOwner().equals(methodCall.getTargetOwner());
-                    if (calledFromWithinSameClass) {
-                        events.add(violated(method, methodCall.getDescription()));
-                    }
-                }
-            }
-        };
-    }
 }

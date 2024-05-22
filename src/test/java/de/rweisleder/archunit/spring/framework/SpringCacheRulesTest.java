@@ -27,21 +27,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SpringCacheRulesTest {
 
     @Nested
-    class Rule_CacheableMethodIsProxyable {
+    class Rule_CacheableMethodsAreProxyable {
 
         @Test
         void provides_a_description() {
-            String description = SpringCacheRules.CacheableMethodIsProxyable.getDescription();
+            String description = SpringCacheRules.CacheableMethodsAreProxyable.getDescription();
             assertThat(description).isEqualTo("methods that are annotated with @Cacheable should be proxyable");
         }
     }
 
     @Nested
-    class Rule_CacheableMethodNotCalledFromSameClass {
+    class Rule_CacheableMethodsNotCalledFromSameClass {
 
         @Test
         void provides_a_description() {
-            String description = SpringCacheRules.CacheableMethodNotCalledFromSameClass.getDescription();
+            String description = SpringCacheRules.CacheableMethodsNotCalledFromSameClass.getDescription();
             assertThat(description).isEqualTo("methods that are annotated with @Cacheable should not be called from within the same class");
         }
     }
