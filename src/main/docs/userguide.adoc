@@ -1,0 +1,133 @@
+= ArchUnit Spring Integration
+
+The ArchUnit Spring Integration provides predefined https://github.com/TNG/ArchUnit[ArchUnit] rules for https://spring.io/projects[Spring] applications.
+
+== Overview
+
+The <<builtin-rules,built-in rules>> help you to avoid typical problems when developing Spring applications that would otherwise lead to unexpected behavior.
+
+You can easily define your own rules using the built-in predicates and conditions.
+
+== Getting Started
+
+This library is available via https://central.sonatype.com/artifact/de.rweisleder/archunit-spring[Maven Central].
+The library expects that the required dependencies for Spring and ArchUnit are already declared.
+
+Maven:
+[source,xml]
+----
+<dependency>
+    <groupId>de.rweisleder</groupId>
+    <artifactId>archunit-spring</artifactId>
+    <version>0.2.0</version>
+    <scope>test</scope>
+</dependency>
+----
+
+Gradle:
+[source]
+----
+testImplementation 'de.rweisleder:archunit-spring:0.2.0'
+----
+
+[#builtin-rules]
+== Built-In Rules and Predicates
+
+=== Spring Annotations
+
+One key element of maintainable Spring applications is the https://github.com/spring-projects/spring-framework/wiki/Spring-Annotation-Programming-Model[Spring Annotation Model].
+Essentially, it is about composable annotations using meta-annotations and aliases for annotation attributes, enhancing readability and reducing boilerplate code.
+
+For example, the annotation `@GetMapping` is a shorthand for `@RequestMapping(method = RequestMethod.GET)`:
+[source,java]
+----
+@GetMapping("/example")
+// is the same as
+@RequestMapping(method = RequestMethod.GET, path = "/example")
+----
+
+The standard `annotatedWith` and `metaAnnotatedWith` methods in ArchUnit are not sufficient for this use case, as they do not fully capture the way Spring evaluates these annotations.
+Therefore, we have introduced a custom predicate `springAnnotatedWith` that mirrors Spring's annotation processing behavior, ensuring accurate rule enforcement.
+
+As an example, this rule enforces all methods annotated with `@RequestMapping` (or `@GetMapping`, `@PostMapping` etc.) to be declared in classes annotated with `@Controller` (or `@RestController` etc.):
+[source,java]
+----
+import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
+
+methods()
+    .that(are(springAnnotatedWith(RequestMapping.class)))
+    .should().beDeclaredInClassesThat(are(springAnnotatedWith(Controller.class)));
+----
+
+As a more complex example, this rule enforces all paths in `@RequestMapping` (or `@GetMapping`, `@PostMapping` etc.) annotations to be lower-case:
+[source,java]
+----
+methods()
+    .that(
+        are(springAnnotatedWith(RequestMapping.class)
+            .as("annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)"))
+    )
+    .should(
+        be(springAnnotatedWith(RequestMapping.class,
+            describe("@RequestMapping(path=<lower-case>)",
+                requestMapping -> Arrays.stream(requestMapping.path()).allMatch(path -> path.toLowerCase().equals(path))))
+        ).as("have path containing only lowercase characters")
+    );
+----
+
+=== Spring Framework
+
+==== SpringCacheRules
+
+===== Rule CacheableMethodsAreProxyable
+
+The rule `SpringCacheRules.CacheableMethodsAreProxyable` ensures that Spring can create proxies for methods that are annotated with `@Cacheable`.
+
+The easiest way to fulfill this rule is to make these methods public and not final and the bean classes containing these methods also not final.
+
+If Spring can not create a proxy for a method, this can lead to an exception when starting the context or to unexpected behavior when calling the method during runtime.
+
+===== Rule CacheableMethodsNotCalledFromSameClass
+
+The rule `SpringCacheRules.CacheableMethodsNotCalledFromSameClass` ensures that methods annotated with `@Cacheable` are not called from within the same class.
+Such internal calls bypass Spring's proxy mechanism, causing the intended caching behavior to be ignored.
+
+This rule should only be used if caching is used in proxy mode (which is the default mode), see the `@EnableCaching` annotation.
+
+== Compatibility and Support
+
+=== Open Source Edition
+
+For each release of this project, compatibility is confirmed with the most recent version of ArchUnit and the minor versions of Spring projects with OSS support available at that release's time.
+
+[cols="1,1,1"]
+|===
+| | ArchUnit Spring version | Confirmed Compatibility
+
+.2+| ArchUnit
+| 0.3.0 | 1.3.0
+| 0.2.0 | 1.2.1
+
+.2+| Spring Boot
+| 0.3.0 | 3.2, 3.3
+| 0.2.0 | 3.1, 3.2
+
+.2+| Spring Framework
+| 0.3.0 | 5.3, 6.0, 6.1
+| 0.2.0 | 5.3, 6.0, 6.1
+|===
+
+Compatibility with other versions is possible, but not guaranteed.
+
+New features, bug fixes, and releases are provided on a best-effort basis, as time my permits, without any particular priority.
+
+=== Enterprise Edition
+
+The Enterprise Edition offers the following benefits:
+
+* Guaranteed compatibility for versions not listed above
+* Prioritized implementation of new features and bug fixes
+* Warranty and liability coverage
+* Consulting services
+
+Please mailto:roland@rweisleder.de[contact me] directly.

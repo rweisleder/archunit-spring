@@ -1,6 +1,6 @@
 = ArchUnit Spring Integration
 
-The ArchUnit Spring Integration is a small library to simplify writing https://github.com/TNG/ArchUnit[ArchUnit] tests for https://spring.io/projects[Spring] applications.
+The ArchUnit Spring Integration provides predefined https://github.com/TNG/ArchUnit[ArchUnit] rules for https://spring.io/projects[Spring] applications.
 
 image:https://maven-badges.herokuapp.com/maven-central/de.rweisleder/archunit-spring/badge.svg[link="https://central.sonatype.com/artifact/de.rweisleder/archunit-spring", title="Maven Central"]
 image:https://javadoc.io/badge2/de.rweisleder/archunit-spring/javadoc.svg[link="https://javadoc.io/doc/de.rweisleder/archunit-spring", title="Javadoc"]
@@ -39,54 +39,15 @@ You can write architecture rules like this:
 
 [source,java]
 ----
-import static de.rweisleder.archunit.spring.MergedAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 
-// "methods that are annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)
-//  should be declared in classes that are annotated with @Controller (or @RestController etc.)"
 methods()
-    .that(are(
-        springAnnotatedWith(RequestMapping.class)
-            .as("annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)"))
-    )
-    .should().beDeclaredInClassesThat(are(
-        springAnnotatedWith(Controller.class)
-            .as("annotated with @Controller (or @RestController etc.)")
-    ));
-
-
-// "methods that are annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)
-//  should have path containing only lowercase characters"
-methods()
-    .that(
-        are(springAnnotatedWith(RequestMapping.class)
-            .as("annotated with @RequestMapping (or @GetMapping, @PostMapping etc.)"))
-    )
-    .should(
-        be(springAnnotatedWith(RequestMapping.class,
-            describe("@RequestMapping(path=<lower-case>)",
-                requestMapping -> Arrays.stream(requestMapping.path()).allMatch(path -> path.toLowerCase().equals(path))))
-        ).as("have path containing only lowercase characters")
-    );
+    // "that are annotated with @RequestMapping" (or @GetMapping, @PostMapping etc.)
+    .that(are(springAnnotatedWith(RequestMapping.class)))
+    // "should be declared in classes that are annotated with @Controller" (or @RestController etc.)
+    .should().beDeclaredInClassesThat(are(springAnnotatedWith(Controller.class)));
 ----
 
-== Version Compatibility
+== User Guide
 
-For each release of this project, compatibility is confirmed with the most recent version of ArchUnit and the minor versions of Spring projects with OSS support available at that release's time.
-
-[cols="1,1,1"]
-|===
-| | ArchUnit Spring version | Confirmed Compatibility
-
-.1+| ArchUnit
-| 0.2.0 | 1.2.1
-
-.1+| Spring Boot
-| 0.2.0 | 3.1, 3.2
-
-.1+| Spring Framework
-| 0.2.0 | 5.3, 6.0, 6.1
-|===
-
-Compatibility with other versions is possible, but not guaranteed.
-
-For business support, including assistance with making the library compatible with unlisted versions or creating integrations with other Spring projects, please mailto:roland@rweisleder.de[contact me] directly.
+Please refer to the complete documentation https://github.com/rweisleder/archunit-spring/blob/main/src/main/docs/userguide.adoc[here] for detailed information.
