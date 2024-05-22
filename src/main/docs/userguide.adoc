@@ -19,7 +19,7 @@ Maven:
 <dependency>
     <groupId>de.rweisleder</groupId>
     <artifactId>archunit-spring</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <scope>test</scope>
 </dependency>
 ----
@@ -27,7 +27,7 @@ Maven:
 Gradle:
 [source]
 ----
-testImplementation 'de.rweisleder:archunit-spring:0.2.0'
+testImplementation 'de.rweisleder:archunit-spring:0.3.0'
 ----
 
 [#builtin-rules]
@@ -104,17 +104,14 @@ For each release of this project, compatibility is confirmed with the most recen
 |===
 | | ArchUnit Spring version | Confirmed Compatibility
 
-.2+| ArchUnit
+.1+| ArchUnit
 | 0.3.0 | 1.3.0
-| 0.2.0 | 1.2.1
 
-.2+| Spring Boot
+.1+| Spring Boot
 | 0.3.0 | 3.2, 3.3
-| 0.2.0 | 3.1, 3.2
 
-.2+| Spring Framework
+.1+| Spring Framework
 | 0.3.0 | 5.3, 6.0, 6.1
-| 0.2.0 | 5.3, 6.0, 6.1
 |===
 
 Compatibility with other versions is possible, but not guaranteed.
