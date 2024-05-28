@@ -25,13 +25,13 @@ import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
-import org.springframework.util.ClassUtils;
 
 import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beProtected;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.bePublic;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBeFinal;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBePrivate;
+import static de.rweisleder.archunit.spring.Utils.isSpringFramework6;
 
 /**
  * Collection of {@link ArchRule rules} that can be used to check the usage of Spring's proxy mechanism.
@@ -54,7 +54,7 @@ public final class SpringProxyRules {
     public static ArchCondition<JavaMethod> beProxyable() {
         return new ArchCondition<JavaMethod>("be proxyable") {
 
-            private final boolean isSpringFramework6 = ClassUtils.isPresent("org.springframework.aot.AotDetector", null);
+            private final boolean isSpringFramework6 = isSpringFramework6();
 
             private final ArchCondition<JavaClass> nonFinalClass = notBeFinal();
 

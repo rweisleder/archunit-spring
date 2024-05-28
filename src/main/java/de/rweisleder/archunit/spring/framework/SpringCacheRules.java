@@ -19,20 +19,13 @@
  */
 package de.rweisleder.archunit.spring.framework;
 
-import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.lang.AbstractClassesTransformer;
 import com.tngtech.archunit.lang.ArchRule;
-import com.tngtech.archunit.lang.ClassesTransformer;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.Utils.availableMethods;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.notBeCalledFromWithinTheSameClass;
 
@@ -59,19 +52,6 @@ public final class SpringCacheRules {
     public static final ArchRule CacheableMethodsAreProxyable = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.cache.annotation.Cacheable")))
             .should(beProxyable());
-
-    private static ClassesTransformer<JavaMethod> availableMethods() {
-        return new AbstractClassesTransformer<JavaMethod>("methods") {
-            @Override
-            public Iterable<JavaMethod> doTransform(JavaClasses javaClasses) {
-                Set<JavaMethod> availableMethods = new HashSet<>();
-                for (JavaClass javaClass : javaClasses) {
-                    availableMethods.addAll(javaClass.getAllMethods());
-                }
-                return availableMethods;
-            }
-        };
-    }
 
     /**
      * A rule that checks that methods annotated with {@code @Cacheable} are not called from within the same class.

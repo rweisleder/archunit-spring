@@ -77,6 +77,24 @@ methods()
 
 === Spring Framework
 
+==== SpringAsyncRules
+
+===== Rule AsyncMethodsAreProxyable
+
+The rule `SpringAsyncRules.AsyncMethodsAreProxyable` ensures that Spring can create proxies for methods that are annotated with `@Async` or `@ Asynchronous`.
+
+The easiest way to fulfill this rule is to make these methods public and not final and the bean classes containing these methods also not final.
+
+If Spring can not create a proxy for a method, this can lead to an exception when starting the context or to unexpected behavior when calling the method during runtime.
+
+===== Rule AsyncMethodsHaveSuitableReturnType
+
+The rule `SpringAsyncRules.AsyncMethodsHaveSuitableReturnType` ensures that methods annotated with `@Async` or `@Asynchronous` have a suitable return type.
+
+It is most convenient that such methods return `void` or an object implementing `java.util.concurrent.Future`.
+
+If such methods have other return types, Spring may discard the return value or calling such a method may lead to an exception.
+
 ==== SpringCacheRules
 
 ===== Rule CacheableMethodsAreProxyable
