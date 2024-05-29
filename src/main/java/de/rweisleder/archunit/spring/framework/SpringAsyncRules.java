@@ -36,6 +36,12 @@ import static de.rweisleder.archunit.spring.Utils.isSpringFramework6;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.notBeCalledFromWithinTheSameClass;
 
+/**
+ * Collection of {@link ArchRule rules} that can be used to check the usage
+ * of Spring's support for asynchronous method execution.
+ *
+ * @author Roland Weisleder
+ */
 public final class SpringAsyncRules {
 
     private SpringAsyncRules() {

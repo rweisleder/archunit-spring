@@ -1,6 +1,11 @@
+:toc:
+:toc-placement!:
+
 = ArchUnit Spring Integration
 
 The ArchUnit Spring Integration provides predefined https://github.com/TNG/ArchUnit[ArchUnit] rules for https://spring.io/projects[Spring] applications.
+
+toc::[]
 
 == Overview
 
@@ -111,6 +116,36 @@ The rule `SpringCacheRules.CacheableMethodsNotCalledFromSameClass` ensures that 
 Such internal calls bypass Spring's proxy mechanism, causing the intended caching behavior to be ignored.
 
 This rule should only be used if caching is used in proxy mode (which is the default mode), see the `@EnableCaching` annotation.
+
+==== SpringComponentPredicates
+
+The class `SpringComponentPredicates` contains predefined predicates to match the different Spring stereotypes like `@Controller`, `@Service` and `@Repository`.
+
+==== SpringComponentRules
+
+===== Rule DependenciesOfControllers
+
+The rule `SpringComponentRules.DependenciesOfControllers` ensures that all controller classes only depend on service classes or repository classes.
+They should not depend on other controller classes or configuration classes.
+
+===== Rule DependenciesOfServices
+
+The rule `SpringComponentRules.DependenciesOfServices` ensures that all service classes only depend on other service classes or repository classes.
+They should not depend on controller classes or configuration classes.
+
+===== Rule DependenciesOfRepositories
+
+The rule `SpringComponentRules.DependenciesOfRepositories` ensures that all repository classes only depend on other repository classes.
+They should not depend on controller classes, service classes, or configuration classes.
+
+=== Spring Boot
+
+==== SpringBootRules
+
+===== Rule AllTypesInApplicationPackage
+
+The rule `SpringBootRules.AllTypesInApplicationPackage` checks that all classes are located in the same package or a sub-package of the application class.
+The application class is the one annotated with `@SpringBootApplication` or `@SpringBootConfiguration`.
 
 == Compatibility and Support
 
