@@ -45,4 +45,14 @@ class SpringAsyncRulesTest {
             assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous should have return type void or java.util.concurrent.Future");
         }
     }
+
+    @Nested
+    class Rule_AsyncMethodsNotCalledFromSameClass {
+
+        @Test
+        void provides_a_description() {
+            String description = SpringAsyncRules.AsyncMethodsNotCalledFromSameClass.getDescription();
+            assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous should not be called from within the same class");
+        }
+    }
 }

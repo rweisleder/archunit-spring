@@ -1,4 +1,5 @@
 :toc:
+:toclevels: 4
 :toc-placement!:
 
 = ArchUnit Spring Integration
@@ -99,6 +100,13 @@ The rule `SpringAsyncRules.AsyncMethodsHaveSuitableReturnType` ensures that meth
 It is most convenient that such methods return `void` or an object implementing `java.util.concurrent.Future`.
 
 If such methods have other return types, Spring may discard the return value or calling such a method may lead to an exception.
+
+===== Rule AsyncMethodsNotCalledFromSameClass
+
+The rule `SpringAsyncRules.AsyncMethodsNotCalledFromSameClass` ensures that methods annotated with `@Async` or `@Asynchronous` are not called from within the same class.
+Such internal calls bypass Spring's proxy mechanism, causing the intended asynchronous behavior to be ignored.
+
+This rule should only be used if caching is used in proxy mode (which is the default mode), see the `@EnableAsync` annotation.
 
 ==== SpringCacheRules
 

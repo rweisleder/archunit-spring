@@ -71,6 +71,18 @@ public final class SpringAsyncRules {
             .that(are(annotatedWithAsyncOrAsynchronous()))
             .should(haveRawReturnType(assignableTo(Void.TYPE).or(assignableTo(Future.class))).as("have return type void or java.util.concurrent.Future"));
 
+    /**
+     * A rule that checks that methods annotated with {@code @Async} or {@code @Asynchronous} are not called from within the same class.
+     * Such internal calls bypass Spring's proxy mechanism, causing the intended asynchronous behavior to be ignored.
+     * <p>
+     * This rule should only be used if caching is used in proxy mode, see the {@code @EnableAsync} annotation.
+     *
+     * @see SpringProxyRules#notBeCalledFromWithinTheSameClass()
+     */
+    public static final ArchRule AsyncMethodsNotCalledFromSameClass = methods()
+            .that(are(annotatedWithAsyncOrAsynchronous()))
+            .should(notBeCalledFromWithinTheSameClass());
+
     private static DescribedPredicate<JavaMethod> annotatedWithAsyncOrAsynchronous() {
         DescribedPredicate<JavaMethod> async = springAnnotatedWith("org.springframework.scheduling.annotation.Async").forSubtype();
 
