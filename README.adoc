@@ -13,7 +13,7 @@ image:https://img.shields.io/github/license/rweisleder/archunit-spring.svg[link=
 <dependency>
     <groupId>de.rweisleder</groupId>
     <artifactId>archunit-spring</artifactId>
-    <version>0.3.0</version>
+    <version>1.0.0</version>
     <scope>test</scope>
 </dependency>
 ----
