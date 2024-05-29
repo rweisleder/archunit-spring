@@ -31,7 +31,7 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.beProtected;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.bePublic;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBeFinal;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBePrivate;
-import static de.rweisleder.archunit.spring.Utils.isSpringFramework6;
+import static de.rweisleder.archunit.spring.internal.InternalUtils.isSpringFramework6;
 
 /**
  * Collection of {@link ArchRule rules} that can be used to check the usage of Spring's proxy mechanism.

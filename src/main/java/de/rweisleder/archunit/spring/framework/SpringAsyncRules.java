@@ -31,10 +31,10 @@ import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
-import static de.rweisleder.archunit.spring.Utils.availableMethods;
-import static de.rweisleder.archunit.spring.Utils.isSpringFramework6;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.notBeCalledFromWithinTheSameClass;
+import static de.rweisleder.archunit.spring.internal.InternalUtils.availableMethods;
+import static de.rweisleder.archunit.spring.internal.InternalUtils.isSpringFramework6;
 
 /**
  * Collection of {@link ArchRule rules} that can be used to check the usage

@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package de.rweisleder.archunit.spring;
+package de.rweisleder.archunit.spring.internal;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -32,11 +32,11 @@ import java.util.Set;
 /**
  * For internal use only.
  */
-public final class Utils {
+public final class InternalUtils {
 
     private static Boolean isSpringFramework6;
 
-    private Utils() {
+    private InternalUtils() {
     }
 
     public static ClassesTransformer<JavaMethod> availableMethods() {
