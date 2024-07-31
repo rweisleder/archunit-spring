@@ -75,11 +75,11 @@ public final class SpringAsyncRules {
      * A rule that checks that methods annotated with {@code @Async} or {@code @Asynchronous} are not called from within the same class.
      * Such internal calls bypass Spring's proxy mechanism, causing the intended asynchronous behavior to be ignored.
      * <p>
-     * This rule should only be used if caching is used in proxy mode, see the {@code @EnableAsync} annotation.
+     * This rule should only be used if asynchronous method execution is used in proxy mode, see the {@code @EnableAsync} annotation.
      *
      * @see SpringProxyRules#notBeCalledFromWithinTheSameClass()
      */
-    public static final ArchRule AsyncMethodsNotCalledFromSameClass = methods()
+    public static final ArchRule AsyncMethodsNotCalledFromSameClass = all(availableMethods())
             .that(are(annotatedWithAsyncOrAsynchronous()))
             .should(notBeCalledFromWithinTheSameClass());
 
