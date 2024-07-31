@@ -23,7 +23,6 @@ import com.tngtech.archunit.lang.ArchRule;
 
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.notBeCalledFromWithinTheSameClass;
@@ -77,7 +76,7 @@ public final class SpringCacheRules {
      *
      * @see SpringProxyRules#notBeCalledFromWithinTheSameClass()
      */
-    public static final ArchRule CacheableMethodsNotCalledFromSameClass = methods()
+    public static final ArchRule CacheableMethodsNotCalledFromSameClass = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.cache.annotation.Cacheable")))
             .should(notBeCalledFromWithinTheSameClass());
 }
