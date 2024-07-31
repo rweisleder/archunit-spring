@@ -26,9 +26,12 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 
+import static com.tngtech.archunit.lang.ConditionEvent.createMessage;
+import static com.tngtech.archunit.lang.SimpleConditionEvent.satisfied;
 import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beProtected;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.bePublic;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBeFinal;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBePrivate;
 import static de.rweisleder.archunit.spring.internal.InternalUtils.isSpringFramework6;
@@ -56,6 +59,17 @@ public final class SpringProxyRules {
 
             private final boolean isSpringFramework6 = isSpringFramework6();
 
+            private final ArchCondition<JavaMethod> notDeclaredInInterface = not(new ArchCondition<JavaMethod>("declared in class that is an interface") {
+                @Override
+                public void check(JavaMethod javaMethod, ConditionEvents events) {
+                    if (javaMethod.getOwner().isInterface()) {
+                        events.add(satisfied(javaMethod, createMessage(javaMethod, "is declared in class that is an interface")));
+                    } else {
+                        events.add(violated(javaMethod, createMessage(javaMethod, "is not declared in class that is an interface")));
+                    }
+                }
+            });
+
             private final ArchCondition<JavaClass> nonFinalClass = notBeFinal();
 
             private final ArchCondition<JavaMethod> nonFinalMethod = notBeFinal();
@@ -74,6 +88,8 @@ public final class SpringProxyRules {
                 for (JavaClass subclass : owner.getAllSubclasses()) {
                     nonFinalClass.check(subclass, events);
                 }
+
+                notDeclaredInInterface.check(method, events);
 
                 nonFinalMethod.check(method, events);
 
