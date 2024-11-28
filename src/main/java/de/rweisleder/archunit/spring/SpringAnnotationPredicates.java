@@ -32,15 +32,27 @@ import com.tngtech.archunit.core.domain.JavaStaticInitializer;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.MethodMetadata;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.util.ReflectionUtils;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.core.domain.Formatters.ensureSimpleName;
+import static de.rweisleder.archunit.spring.internal.InternalUtils.isSpringFramework6;
+import static java.util.Collections.emptyList;
 
 /**
  * Collection of {@link DescribedPredicate predicates} that can be used with ArchUnit to check elements for the
@@ -53,6 +65,8 @@ import static com.tngtech.archunit.core.domain.Formatters.ensureSimpleName;
  * @see CanBeAnnotated.Predicates
  */
 public final class SpringAnnotationPredicates {
+
+    private static final MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory();
 
     private SpringAnnotationPredicates() {
     }
@@ -176,14 +190,28 @@ public final class SpringAnnotationPredicates {
      */
     public static DescribedPredicate<CanBeAnnotated> springAnnotatedWith(DescribedPredicate<MergedAnnotations> predicate) {
         return describe("annotated with " + predicate.getDescription(), annotated -> {
-            AnnotatedElement annotatedElement = asAnnotatedElement(annotated);
-            if (annotatedElement == null) {
+            MergedAnnotations mergedAnnotations = mergedAnnotations(annotated);
+            if (mergedAnnotations == null) {
                 return false;
             }
 
-            MergedAnnotations mergedAnnotations = MergedAnnotations.from(annotatedElement);
             return predicate.test(mergedAnnotations);
         });
+    }
+
+    private static MergedAnnotations mergedAnnotations(CanBeAnnotated annotated) {
+        try {
+            AnnotatedElement annotatedElement = asAnnotatedElement(annotated);
+            if (annotatedElement == null) {
+                return null;
+            }
+            return MergedAnnotations.from(annotatedElement);
+        } catch (EvaluationException e) {
+            throw e;
+        } catch (Exception | NoClassDefFoundError ignored) {
+        }
+
+        return mergedAnnotationsFromMetadata(annotated);
     }
 
     private static AnnotatedElement asAnnotatedElement(CanBeAnnotated annotated) {
@@ -234,6 +262,80 @@ public final class SpringAnnotationPredicates {
             return asAnnotatedElement(accessedMember.get());
         }
 
-        throw new RuntimeException(annotated + " cannot be converted to " + AnnotatedElement.class);
+        throw new EvaluationException(annotated + " cannot be converted to " + AnnotatedElement.class);
+    }
+
+    private static MergedAnnotations mergedAnnotationsFromMetadata(CanBeAnnotated annotated) {
+        if (annotated instanceof JavaClass) {
+            AnnotationMetadata annotationMetadata = readAnnotationMetadata((JavaClass) annotated);
+            if (annotationMetadata == null) {
+                return null;
+            }
+
+            return annotationMetadata.getAnnotations();
+        }
+
+        if (annotated instanceof JavaMethod) {
+            AnnotationMetadata annotationMetadata = readAnnotationMetadata(((JavaMethod) annotated).getOwner());
+            if (annotationMetadata == null) {
+                return null;
+            }
+
+            MethodMetadata methodMetadata = findMethodMetadata(annotationMetadata, (JavaMethod) annotated);
+            if (methodMetadata == null) {
+                return null;
+            }
+
+            return methodMetadata.getAnnotations();
+        }
+
+        return null;
+    }
+
+    private static AnnotationMetadata readAnnotationMetadata(JavaClass javaClass) {
+        try {
+            MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(javaClass.getName());
+            return metadataReader.getAnnotationMetadata();
+        } catch (IOException ignored) {
+            return null;
+        }
+    }
+
+    private static MethodMetadata findMethodMetadata(AnnotationMetadata annotationMetadata, JavaMethod javaMethod) {
+        Collection<MethodMetadata> methodMetadataSet = emptyList();
+        if (isSpringFramework6()) {
+            methodMetadataSet = annotationMetadata.getDeclaredMethods();
+        } else {
+            Field annotatedMethodsField = ReflectionUtils.findField(annotationMetadata.getClass(), "annotatedMethods");
+            if (annotatedMethodsField != null) {
+                ReflectionUtils.makeAccessible(annotatedMethodsField);
+                MethodMetadata[] annotatedMethods = (MethodMetadata[]) ReflectionUtils.getField(annotatedMethodsField, annotationMetadata);
+                if (annotatedMethods != null) {
+                    methodMetadataSet = Arrays.asList(annotatedMethods);
+                }
+            }
+        }
+
+        MethodMetadata matchingMethodMetadata = null;
+        for (MethodMetadata methodMetadata : methodMetadataSet) {
+            if (methodMetadata.getMethodName().equals(javaMethod.getName())) {
+                if (matchingMethodMetadata == null) {
+                    matchingMethodMetadata = methodMetadata;
+                } else {
+                    // As we can only compare by name and not by signature,
+                    // we cannot identify overloaded methods at this point.
+                    return null;
+                }
+            }
+        }
+
+        return matchingMethodMetadata;
+    }
+
+    public static class EvaluationException extends RuntimeException {
+
+        EvaluationException(String message) {
+            super(message);
+        }
     }
 }
