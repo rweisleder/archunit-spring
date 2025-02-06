@@ -113,6 +113,7 @@
                         </roots>
                         <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
                         <useJavaNoReformatCommentStartTag>false</useJavaNoReformatCommentStartTag>
+                        <canUpdateDescription>true</canUpdateDescription>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -175,17 +176,6 @@
                         <goals>
                             <goal>update-file-header</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>check-license-header</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check-file-header</goal>
-                        </goals>
-                        <configuration>
-                            <failOnMissingHeader>true</failOnMissingHeader>
-                            <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>create-license-file</id>
