@@ -146,6 +146,25 @@ They should not depend on controller classes or configuration classes.
 The rule `SpringComponentRules.DependenciesOfRepositories` ensures that all repository classes only depend on other repository classes.
 They should not depend on controller classes, service classes, or configuration classes.
 
+=== Spring Retry
+
+==== SpringRetryRules
+
+===== Rule RetryableMethodsAreProxyable
+
+The rule `SpringRetryRules.RetryableMethodsAreProxyable` ensures that Spring can create proxies for methods that are annotated with `@Retryable`.
+
+The easiest way to fulfill this rule is to make these methods public and not final and the bean classes containing these methods also not final.
+
+If Spring can not create a proxy for a method, this can lead to an exception when starting the context or to unexpected behavior when calling the method during runtime.
+
+===== Rule RetryableMethodsNotCalledFromSameClass
+
+The rule `SpringRetryRules.RetryableMethodsNotCalledFromSameClass` ensures that methods annotated with `@Retryable` are not called from within the same class.
+Such internal calls bypass Spring's proxy mechanism, causing the intended retry behavior to be ignored.
+
+This rule should only be used if retrying is used in proxy mode (which is the default mode), see the `@EnableRetry` annotation.
+
 === Spring Boot
 
 ==== SpringBootRules
