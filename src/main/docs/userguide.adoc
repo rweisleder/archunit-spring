@@ -174,6 +174,11 @@ This rule should only be used if retrying is used in proxy mode (which is the de
 The rule `SpringBootRules.AllTypesInApplicationPackage` checks that all classes are located in the same package or a sub-package of the application class.
 The application class is the one annotated with `@SpringBootApplication` or `@SpringBootConfiguration`.
 
+===== Rule ApplicationHasOnlyOneSpringBootConfiguration
+
+A Spring Boot application should have exactly one class annotated with `@SpringBootConfiguration`, which is typically inherited from `@SpringBootApplication`.
+The rule `SpringBootRules.ApplicationHasOnlyOneSpringBootConfiguration` checks that there is at most one such class within the analyzed codebase.
+
 == Compatibility and Support
 
 === Open Source Edition

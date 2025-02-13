@@ -19,7 +19,9 @@
  */
 package de.rweisleder.archunit.spring.boot;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -28,6 +30,9 @@ import com.tngtech.archunit.lang.conditions.ArchConditions;
 import java.util.Collection;
 import java.util.List;
 
+import static com.tngtech.archunit.lang.ConditionEvent.createMessage;
+import static com.tngtech.archunit.lang.SimpleConditionEvent.satisfied;
+import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
@@ -39,6 +44,9 @@ import static java.util.stream.Collectors.toList;
  * @author Roland Weisleder
  */
 public final class SpringBootRules {
+
+    private static final DescribedPredicate<CanBeAnnotated> annotatedWithSpringBootApplication = springAnnotatedWith("org.springframework.boot.autoconfigure.SpringBootApplication");
+    private static final DescribedPredicate<CanBeAnnotated> annotatedWithSpringBootConfiguration = springAnnotatedWith("org.springframework.boot.SpringBootConfiguration");
 
     private SpringBootRules() {
     }
@@ -71,7 +79,7 @@ public final class SpringBootRules {
             @Override
             public void init(Collection<JavaClass> javaClasses) {
                 List<JavaClass> springBootApplicationClasses = javaClasses.stream()
-                        .filter(springAnnotatedWith("org.springframework.boot.SpringBootConfiguration"))
+                        .filter(annotatedWithSpringBootConfiguration)
                         .collect(toList());
 
                 if (springBootApplicationClasses.isEmpty()) {
@@ -87,6 +95,62 @@ public final class SpringBootRules {
             @Override
             public void check(JavaClass javaClass, ConditionEvents events) {
                 inApplicationPackageCondition.check(javaClass, events);
+            }
+        };
+    }
+
+    /**
+     * A rule that checks that at most one class within the given classes is annotated with
+     * {@code @SpringBootApplication} or {@code @SpringBootConfiguration}.
+     * <p>
+     * A Spring Boot application should only ever include a single {@code @SpringBootConfiguration}.
+     * In most idiomatic Spring Boot applications, this configuration is inherited from {@code @SpringBootApplication}.
+     * Having multiple such classes can lead to unexpected behavior and conflicts during application startup.
+     *
+     * @see #haveOnlyOneSpringBootConfiguration()
+     */
+    public static final ArchRule ApplicationHasOnlyOneSpringBootConfiguration = classes()
+            .should(haveOnlyOneSpringBootConfiguration())
+            .as("application should have only one class annotated with @SpringBootApplication or @SpringBootConfiguration");
+
+    /**
+     * A condition that checks that at most one class within the given classes is annotated with
+     * {@code @SpringBootApplication} or {@code @SpringBootConfiguration}.
+     * <p>
+     * A Spring Boot application should only ever include a single {@code @SpringBootConfiguration}.
+     * In most idiomatic Spring Boot applications, this configuration is inherited from {@code @SpringBootApplication}.
+     * Having multiple such classes can lead to unexpected behavior and conflicts during application startup.
+     *
+     * @see #ApplicationHasOnlyOneSpringBootConfiguration
+     */
+    public static ArchCondition<JavaClass> haveOnlyOneSpringBootConfiguration() {
+        return new ArchCondition<JavaClass>("have only one class annotated with @SpringBootApplication or @SpringBootConfiguration") {
+
+            private List<JavaClass> springBootConfigurationClasses;
+
+            @Override
+            public void init(Collection<JavaClass> javaClasses) {
+                springBootConfigurationClasses = javaClasses.stream()
+                        .filter(annotatedWithSpringBootConfiguration)
+                        .collect(toList());
+            }
+
+            @Override
+            public void check(JavaClass javaClass, ConditionEvents events) {
+                String message;
+                if (annotatedWithSpringBootApplication.test(javaClass)) {
+                    message = createMessage(javaClass, "is annotated with @SpringBootApplication");
+                } else if (annotatedWithSpringBootConfiguration.test(javaClass)) {
+                    message = createMessage(javaClass, "is annotated with @SpringBootConfiguration");
+                } else {
+                    message = createMessage(javaClass, "is not annotated with @SpringBootApplication or @SpringBootConfiguration");
+                }
+
+                if (springBootConfigurationClasses.size() > 1 && springBootConfigurationClasses.contains(javaClass)) {
+                    events.add(violated(javaClass, message));
+                } else {
+                    events.add(satisfied(javaClass, message));
+                }
             }
         };
     }

@@ -35,4 +35,14 @@ class SpringBootRulesTest {
             assertThat(description).isEqualTo("all types of a Spring Boot application should be located in the same package or a sub-package of the application class");
         }
     }
+
+    @Nested
+    class Rule_ApplicationHasOnlyOneSpringBootConfiguration {
+
+        @Test
+        void provides_a_description() {
+            String description = SpringBootRules.ApplicationHasOnlyOneSpringBootConfiguration.getDescription();
+            assertThat(description).isEqualTo("application should have only one class annotated with @SpringBootApplication or @SpringBootConfiguration");
+        }
+    }
 }
