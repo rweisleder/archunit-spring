@@ -34,6 +34,7 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.bePublic;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBeFinal;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBePrivate;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.notBeStatic;
 import static de.rweisleder.archunit.spring.internal.InternalUtils.isSpringFramework6;
 
 /**
@@ -74,6 +75,8 @@ public final class SpringProxyRules {
 
             private final ArchCondition<JavaMethod> nonFinalMethod = notBeFinal();
 
+            private final ArchCondition<JavaMethod> nonStaticMethod = notBeStatic();
+
             private final ArchCondition<JavaMethod> publicMethod = bePublic();
 
             private final ArchCondition<JavaMethod> publicOrProtectedMethod = bePublic().or(beProtected()).forSubtype();
@@ -92,6 +95,7 @@ public final class SpringProxyRules {
                 notDeclaredInInterface.check(method, events);
 
                 nonFinalMethod.check(method, events);
+                nonStaticMethod.check(method, events);
 
                 if (isSpringFramework6) {
                     if (hasSubclassInDifferentPackage(owner)) {
