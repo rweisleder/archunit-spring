@@ -2,7 +2,7 @@
  * #%L
  * ArchUnit Spring Integration
  * %%
- * Copyright (C) 2023 - 2024 Roland Weisleder
+ * Copyright (C) 2023 - 2025 Roland Weisleder
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@
  */
 package de.rweisleder.archunit.spring.framework;
 
-import com.tngtech.archunit.base.DescribedPredicate;
-import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchRule;
 
 import java.util.concurrent.Future;
@@ -30,11 +28,10 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.haveRawReturnT
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
-import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
+import static de.rweisleder.archunit.spring.framework.SpringAsyncPredicates.consideredAsAsynchronous;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.notBeCalledFromWithinTheSameClass;
 import static de.rweisleder.archunit.spring.internal.InternalUtils.availableMethods;
-import static de.rweisleder.archunit.spring.internal.InternalUtils.isSpringFramework6;
 
 /**
  * Collection of {@link ArchRule rules} that can be used to check the usage
@@ -48,48 +45,45 @@ public final class SpringAsyncRules {
     }
 
     /**
-     * A rule that checks that Spring can create proxies for methods that are annotated with {@code @Async} or {@code @Asynchronous}.
+     * A rule that checks that Spring can create proxies for methods that are
+     * {@link SpringAsyncPredicates#consideredAsAsynchronous() considered as asynchronous}.
      * It is most convenient for Spring if such methods are public and not final,
      * and the bean classes containing these methods are also not final.
      * <p>
      * If Spring can not create a proxy for a method, this can lead to an exception when starting the context
      * or to unexpected behavior when calling the method.
      *
+     * @see SpringAsyncPredicates#consideredAsAsynchronous()
      * @see SpringProxyRules#beProxyable()
      */
     public static final ArchRule AsyncMethodsAreProxyable = all(availableMethods())
-            .that(are(annotatedWithAsyncOrAsynchronous()))
+            .that(are(consideredAsAsynchronous()))
             .should(beProxyable());
 
     /**
-     * A rule that checks that methods annotated with {@code @Async} or {@code @Asynchronous} have a suitable return type.
+     * A rule that checks that methods that are {@link SpringAsyncPredicates#consideredAsAsynchronous() considered as asynchronous}
+     * have a suitable return type.
      * It is most convenient that such methods return {@code void} or an object implementing {@code java.util.concurrent.Future}.
      * <p>
      * If such methods have other return types, Spring may discard the return value or calling such a method may lead to an exception.
+     *
+     * @see SpringAsyncPredicates#consideredAsAsynchronous()
      */
     public static final ArchRule AsyncMethodsHaveSuitableReturnType = methods()
-            .that(are(annotatedWithAsyncOrAsynchronous()))
+            .that(are(consideredAsAsynchronous()))
             .should(haveRawReturnType(assignableTo(Void.TYPE).or(assignableTo(Future.class))).as("have return type void or java.util.concurrent.Future"));
 
     /**
-     * A rule that checks that methods annotated with {@code @Async} or {@code @Asynchronous} are not called from within the same class.
+     * A rule that checks that methods that are {@link SpringAsyncPredicates#consideredAsAsynchronous() considered as asynchronous}
+     * are not called from within the same class.
      * Such internal calls bypass Spring's proxy mechanism, causing the intended asynchronous behavior to be ignored.
      * <p>
      * This rule should only be used if asynchronous method execution is used in proxy mode, see the {@code @EnableAsync} annotation.
      *
+     * @see SpringAsyncPredicates#consideredAsAsynchronous()
      * @see SpringProxyRules#notBeCalledFromWithinTheSameClass()
      */
     public static final ArchRule AsyncMethodsNotCalledFromSameClass = all(availableMethods())
-            .that(are(annotatedWithAsyncOrAsynchronous()))
+            .that(are(consideredAsAsynchronous()))
             .should(notBeCalledFromWithinTheSameClass());
-
-    private static DescribedPredicate<JavaMethod> annotatedWithAsyncOrAsynchronous() {
-        DescribedPredicate<JavaMethod> async = springAnnotatedWith("org.springframework.scheduling.annotation.Async").forSubtype();
-
-        DescribedPredicate<JavaMethod> asynchronous = isSpringFramework6()
-                ? springAnnotatedWith("jakarta.ejb.Asynchronous").or(springAnnotatedWith("jakarta.enterprise.concurrent.Asynchronous")).forSubtype()
-                : springAnnotatedWith("javax.ejb.Asynchronous").forSubtype();
-
-        return async.or(asynchronous).as("annotated with @Async or @Asynchronous").forSubtype();
-    }
 }

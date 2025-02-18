@@ -2,7 +2,7 @@
  * #%L
  * ArchUnit Spring Integration
  * %%
- * Copyright (C) 2023 - 2024 Roland Weisleder
+ * Copyright (C) 2023 - 2025 Roland Weisleder
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class SpringAsyncRulesTest {
         @Test
         void provides_a_description() {
             String description = SpringAsyncRules.AsyncMethodsAreProxyable.getDescription();
-            assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous should be proxyable");
+            assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous (directly or at class level) should be proxyable");
         }
     }
 
@@ -42,7 +42,7 @@ class SpringAsyncRulesTest {
         @Test
         void provides_a_description() {
             String description = SpringAsyncRules.AsyncMethodsHaveSuitableReturnType.getDescription();
-            assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous should have return type void or java.util.concurrent.Future");
+            assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous (directly or at class level) should have return type void or java.util.concurrent.Future");
         }
     }
 
@@ -52,7 +52,7 @@ class SpringAsyncRulesTest {
         @Test
         void provides_a_description() {
             String description = SpringAsyncRules.AsyncMethodsNotCalledFromSameClass.getDescription();
-            assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous should not be called from within the same class");
+            assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous (directly or at class level) should not be called from within the same class");
         }
     }
 }

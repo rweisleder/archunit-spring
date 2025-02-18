@@ -2,7 +2,7 @@
  * #%L
  * ArchUnit Spring Integration
  * %%
- * Copyright (C) 2023 - 2024 Roland Weisleder
+ * Copyright (C) 2023 - 2025 Roland Weisleder
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,8 @@ public final class SpringProxyRules {
      * <p>
      * If Spring can not create a proxy for a method, this can lead to an exception when starting the context
      * or to unexpected behavior when calling the method.
+     *
+     * @see SpringProxyPredicates#proxyable()
      */
     public static ArchCondition<JavaMethod> beProxyable() {
         return new ArchCondition<JavaMethod>("be proxyable") {
