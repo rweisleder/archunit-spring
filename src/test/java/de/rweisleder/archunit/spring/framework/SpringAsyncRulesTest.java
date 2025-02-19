@@ -55,4 +55,14 @@ class SpringAsyncRulesTest {
             assertThat(description).isEqualTo("methods that are annotated with @Async or @Asynchronous (directly or at class level) should not be called from within the same class");
         }
     }
+
+    @Nested
+    class Rule_EnableAsyncIsPresentIfAsyncMethodsExist {
+
+        @Test
+        void provides_a_description() {
+            String description = SpringAsyncRules.EnableAsyncIsPresentIfAsyncMethodsExist.getDescription();
+            assertThat(description).isEqualTo("application should contain a class annotated with @EnableAsync if any method is annotated with @Async");
+        }
+    }
 }
