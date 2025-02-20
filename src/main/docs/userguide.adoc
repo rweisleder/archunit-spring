@@ -87,7 +87,7 @@ methods()
 
 ===== Rule AsyncMethodsAreProxyable
 
-The rule `SpringAsyncRules.AsyncMethodsAreProxyable` ensures that Spring can create proxies for methods that are annotated with `@Async` or `@ Asynchronous`.
+The rule `SpringAsyncRules.AsyncMethodsAreProxyable` ensures that Spring can create proxies for methods that are annotated with `@Async` or `@ Asynchronous` (directly or at class level).
 
 The easiest way to fulfill this rule is to make these methods public and not final and the bean classes containing these methods also not final.
 
@@ -95,7 +95,7 @@ If Spring can not create a proxy for a method, this can lead to an exception whe
 
 ===== Rule AsyncMethodsHaveSuitableReturnType
 
-The rule `SpringAsyncRules.AsyncMethodsHaveSuitableReturnType` ensures that methods annotated with `@Async` or `@Asynchronous` have a suitable return type.
+The rule `SpringAsyncRules.AsyncMethodsHaveSuitableReturnType` ensures that methods annotated with `@Async` or `@Asynchronous` (directly or at class level) have a suitable return type.
 
 It is most convenient that such methods return `void` or an object implementing `java.util.concurrent.Future`.
 
@@ -103,10 +103,16 @@ If such methods have other return types, Spring may discard the return value or 
 
 ===== Rule AsyncMethodsNotCalledFromSameClass
 
-The rule `SpringAsyncRules.AsyncMethodsNotCalledFromSameClass` ensures that methods annotated with `@Async` or `@Asynchronous` are not called from within the same class.
+The rule `SpringAsyncRules.AsyncMethodsNotCalledFromSameClass` ensures that methods annotated with `@Async` or `@Asynchronous` (directly or at class level) are not called from within the same class.
 Such internal calls bypass Spring's proxy mechanism, causing the intended asynchronous behavior to be ignored.
 
-This rule should only be used if caching is used in proxy mode (which is the default mode), see the `@EnableAsync` annotation.
+This rule should only be used if asynchronous method execution is used in proxy mode (which is the default mode), see the `@EnableAsync` annotation.
+
+===== Rule EnableAsyncIsPresentIfAsyncMethodsExist
+
+The rule `SpringAsyncRules.EnableAsyncIsPresentIfAsyncMethodsExist` ensures that the application contains a class annotated with `@EnableAsync` if any class contains a method annotated with `@Async`.
+The annotations for asynchronous method execution would have no effect if there is no configuration class annotated with `@EnableAsync`.
+The rule has no effect if no method annotated with `@Async` exists.
 
 ==== SpringCacheRules
 
@@ -124,6 +130,12 @@ The rule `SpringCacheRules.CacheableMethodsNotCalledFromSameClass` ensures that 
 Such internal calls bypass Spring's proxy mechanism, causing the intended caching behavior to be ignored.
 
 This rule should only be used if caching is used in proxy mode (which is the default mode), see the `@EnableCaching` annotation.
+
+===== Rule EnableCachingIsPresentIfCacheableMethodsExist
+
+The rule `SpringCacheRules.EnableCachingIsPresentIfCacheableMethodsExist` ensures that the application contains a class annotated with `@EnableCaching` if any class contains a method annotated with `@Cacheable`.
+The annotation for caching would have no effect if there is no configuration class annotated with `@EnableCaching`.
+The rule has no effect if no method annotated with `@Cacheable` exists.
 
 ==== SpringComponentPredicates
 
@@ -164,6 +176,12 @@ The rule `SpringRetryRules.RetryableMethodsNotCalledFromSameClass` ensures that 
 Such internal calls bypass Spring's proxy mechanism, causing the intended retry behavior to be ignored.
 
 This rule should only be used if retrying is used in proxy mode (which is the default mode), see the `@EnableRetry` annotation.
+
+===== Rule EnableRetryIsPresentIfRetryableMethodsExist
+
+The rule `SpringRetryRules.EnableRetryIsPresentIfRetryableMethodsExist` ensures that the application contains a class annotated with `@RetryCaching` if any class contains a method annotated with `@Retryable`.
+The annotation for retry would have no effect if there is no configuration class annotated with `@EnableRetry`.
+The rule has no effect if no method annotated with `@Retryable` exists.
 
 === Spring Boot
 
