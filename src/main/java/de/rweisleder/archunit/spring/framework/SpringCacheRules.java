@@ -19,10 +19,21 @@
  */
 package de.rweisleder.archunit.spring.framework;
 
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.ConditionEvents;
 
+import java.util.Collection;
+
+import static com.tngtech.archunit.lang.ConditionEvent.createMessage;
+import static com.tngtech.archunit.lang.SimpleConditionEvent.satisfied;
+import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.notBeCalledFromWithinTheSameClass;
@@ -79,4 +90,60 @@ public final class SpringCacheRules {
     public static final ArchRule CacheableMethodsNotCalledFromSameClass = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.cache.annotation.Cacheable")))
             .should(notBeCalledFromWithinTheSameClass());
+
+    /**
+     * A rule that checks that the application contains a class annotated with {@code @EnableCaching} if any class
+     * contains a method annotated with {@code @Cacheable}.
+     * The rule has no effect if no such method exists.
+     *
+     * @see #haveEnableCachingPresentIfCacheableMethodsExist()
+     */
+    public static final ArchRule EnableCachingIsPresentIfCacheableMethodsExist = classes()
+            .should(haveEnableCachingPresentIfCacheableMethodsExist())
+            .as("application should contain a class annotated with @EnableCaching if any method is annotated with @Cacheable");
+
+    /**
+     * A condition that checks that the given classes contain a class annotated with {@code @EnableCaching} if any class
+     * contains a method annotated with {@code @Cacheable}.
+     * The condition has no effect if no such method exists.
+     *
+     * @see #EnableCachingIsPresentIfCacheableMethodsExist
+     */
+    public static ArchCondition<JavaClass> haveEnableCachingPresentIfCacheableMethodsExist() {
+        return new ArchCondition<JavaClass>("have @EnableCaching present if methods annotated with @Cacheable exist") {
+
+            private final DescribedPredicate<JavaMethod> annotatedWithCacheable = springAnnotatedWith("org.springframework.cache.annotation.Cacheable").forSubtype();
+            private final DescribedPredicate<JavaClass> annotatedWithEnableCaching = springAnnotatedWith("org.springframework.cache.annotation.EnableCaching").forSubtype();
+
+            private boolean classesHaveMethodAnnotatedWithCacheable = false;
+            private boolean hasClassAnnotatedWithEnableCaching = false;
+
+            @Override
+            public void init(Collection<JavaClass> javaClasses) {
+                classesHaveMethodAnnotatedWithCacheable = javaClasses.stream()
+                        .flatMap(javaClass -> javaClass.getAllMethods().stream())
+                        .anyMatch(annotatedWithCacheable);
+                hasClassAnnotatedWithEnableCaching = false;
+            }
+
+            @Override
+            public void check(JavaClass javaClass, ConditionEvents events) {
+                if (classesHaveMethodAnnotatedWithCacheable) {
+                    boolean classAnnotatedWithEnableCaching = annotatedWithEnableCaching.test(javaClass);
+                    if (classAnnotatedWithEnableCaching) {
+                        events.add(satisfied(javaClass, createMessage(javaClass, "is " + annotatedWithEnableCaching.getDescription())));
+                    }
+
+                    hasClassAnnotatedWithEnableCaching |= classAnnotatedWithEnableCaching;
+                }
+            }
+
+            @Override
+            public void finish(ConditionEvents events) {
+                if (classesHaveMethodAnnotatedWithCacheable && !hasClassAnnotatedWithEnableCaching) {
+                    events.add(violated(null, "application contains no class annotated with @EnableCaching"));
+                }
+            }
+        };
+    }
 }

@@ -45,4 +45,14 @@ class SpringCacheRulesTest {
             assertThat(description).isEqualTo("methods that are annotated with @Cacheable should not be called from within the same class");
         }
     }
+
+    @Nested
+    class Rule_EnableCachingIsPresentIfCacheableMethodsExist {
+
+        @Test
+        void provides_a_description() {
+            String description = SpringCacheRules.EnableCachingIsPresentIfCacheableMethodsExist.getDescription();
+            assertThat(description).isEqualTo("application should contain a class annotated with @EnableCaching if any method is annotated with @Cacheable");
+        }
+    }
 }
