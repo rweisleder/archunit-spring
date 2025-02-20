@@ -132,6 +132,7 @@ public final class SpringAsyncRules {
                 classesHaveMethodConsideredAsAsynchronous = javaClasses.stream()
                         .flatMap(javaClass -> javaClass.getAllMethods().stream())
                         .anyMatch(consideredAsAsynchronous);
+                hasClassAnnotatedWithEnableAsync = false;
             }
 
             @Override
