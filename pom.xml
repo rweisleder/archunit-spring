@@ -10,7 +10,7 @@
 
     <name>ArchUnit Spring Integration</name>
     <description>Provides predefined ArchUnit rules for Spring applications</description>
-    <url>https://github.com/rweisleder/archunit-spring</url>
+    <url>https://arcndev.com/archunit-spring/</url>
     <inceptionYear>2023</inceptionYear>
 
     <licenses>

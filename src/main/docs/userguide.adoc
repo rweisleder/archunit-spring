@@ -230,4 +230,4 @@ The Enterprise Edition offers the following benefits:
 * Warranty and liability coverage
 * Consulting services
 
-Please mailto:roland@rweisleder.de[contact me] directly.
+For pricing and a detailed comparison of Open Source and Enterprise Edition, please https://arcndev.com/archunit-spring/[visit our homepage].
