@@ -19,11 +19,22 @@
  */
 package de.rweisleder.archunit.spring.retry;
 
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.ConditionEvents;
 import de.rweisleder.archunit.spring.framework.SpringProxyRules;
 
+import java.util.Collection;
+
+import static com.tngtech.archunit.lang.ConditionEvent.createMessage;
+import static com.tngtech.archunit.lang.SimpleConditionEvent.satisfied;
+import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.all;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static de.rweisleder.archunit.spring.SpringAnnotationPredicates.springAnnotatedWith;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.beProxyable;
 import static de.rweisleder.archunit.spring.framework.SpringProxyRules.notBeCalledFromWithinTheSameClass;
@@ -82,4 +93,60 @@ public final class SpringRetryRules {
     public static final ArchRule RetryableMethodsNotCalledFromSameClass = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.retry.annotation.Retryable")))
             .should(notBeCalledFromWithinTheSameClass());
+
+    /**
+     * A rule that checks that the application contains a class annotated with {@code @EnableRetry} if any class
+     * contains a method annotated with {@code @Retryable}.
+     * The rule has no effect if no such method exists.
+     *
+     * @see #haveEnableRetryPresentIfRetryableMethodsExist()
+     */
+    public static final ArchRule EnableRetryIsPresentIfRetryableMethodsExist = classes()
+            .should(haveEnableRetryPresentIfRetryableMethodsExist())
+            .as("application should contain a class annotated with @EnableRetry if any method is annotated with @Retryable");
+
+    /**
+     * A condition that checks that the given classes contain a class annotated with {@code @EnableRetry} if any class
+     * contains a method annotated with {@code @Retryable}.
+     * The condition has no effect if no such method exists.
+     *
+     * @see #EnableRetryIsPresentIfRetryableMethodsExist
+     */
+    public static ArchCondition<JavaClass> haveEnableRetryPresentIfRetryableMethodsExist() {
+        return new ArchCondition<JavaClass>("have @EnableRetry present if methods annotated with @Retryable exist") {
+
+            private final DescribedPredicate<JavaMethod> annotatedWithRetryable = springAnnotatedWith("org.springframework.retry.annotation.Retryable").forSubtype();
+            private final DescribedPredicate<JavaClass> annotatedWithEnableRetry = springAnnotatedWith("org.springframework.retry.annotation.EnableRetry").forSubtype();
+
+            private boolean classesHaveMethodAnnotatedWithRetryable = false;
+            private boolean hasClassAnnotatedWithEnableRetry = false;
+
+            @Override
+            public void init(Collection<JavaClass> javaClasses) {
+                classesHaveMethodAnnotatedWithRetryable = javaClasses.stream()
+                        .flatMap(javaClass -> javaClass.getAllMethods().stream())
+                        .anyMatch(annotatedWithRetryable);
+                hasClassAnnotatedWithEnableRetry = false;
+            }
+
+            @Override
+            public void check(JavaClass javaClass, ConditionEvents events) {
+                if (classesHaveMethodAnnotatedWithRetryable) {
+                    boolean classAnnotatedWithEnableRetry = annotatedWithEnableRetry.test(javaClass);
+                    if (classAnnotatedWithEnableRetry) {
+                        events.add(satisfied(javaClass, createMessage(javaClass, "is " + annotatedWithEnableRetry.getDescription())));
+                    }
+
+                    hasClassAnnotatedWithEnableRetry |= classAnnotatedWithEnableRetry;
+                }
+            }
+
+            @Override
+            public void finish(ConditionEvents events) {
+                if (classesHaveMethodAnnotatedWithRetryable && !hasClassAnnotatedWithEnableRetry) {
+                    events.add(violated(null, "application contains no class annotated with @EnableRetry"));
+                }
+            }
+        };
+    }
 }

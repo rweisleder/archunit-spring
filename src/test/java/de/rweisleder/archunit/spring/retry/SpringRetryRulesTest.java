@@ -45,4 +45,14 @@ class SpringRetryRulesTest {
             assertThat(description).isEqualTo("methods that are annotated with @Retryable should not be called from within the same class");
         }
     }
+
+    @Nested
+    class Rule_EnableRetryIsPresentIfRetryableMethodsExist {
+
+        @Test
+        void provides_a_description() {
+            String description = SpringRetryRules.EnableRetryIsPresentIfRetryableMethodsExist.getDescription();
+            assertThat(description).isEqualTo("application should contain a class annotated with @EnableRetry if any method is annotated with @Retryable");
+        }
+    }
 }
