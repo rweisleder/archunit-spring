@@ -24,8 +24,8 @@
     <properties>
         <archunit.version>1.4.0</archunit.version>
         <assertj.version>3.27.3</assertj.version>
-        <junit-jupiter.version>5.11.4</junit-jupiter.version>
-        <spring-framework.version>6.2.3</spring-framework.version>
+        <junit-jupiter.version>5.12.2</junit-jupiter.version>
+        <spring-framework.version>6.2.6</spring-framework.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -89,7 +89,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.2</version>
+                    <version>3.5.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -119,7 +119,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.6.0</version>
+                    <version>1.7.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -141,7 +141,7 @@
                 <plugin>
                     <groupId>org.jreleaser</groupId>
                     <artifactId>jreleaser-maven-plugin</artifactId>
-                    <version>1.16.0</version>
+                    <version>1.18.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
