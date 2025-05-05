@@ -158,6 +158,14 @@ They should not depend on controller classes or configuration classes.
 The rule `SpringComponentRules.DependenciesOfRepositories` ensures that all repository classes only depend on other repository classes.
 They should not depend on controller classes, service classes, or configuration classes.
 
+==== SpringScheduledRules
+
+===== Rule EnableSchedulingIsPresentIfScheduledMethodsExist
+
+The rule `SpringScheduledRules.EnableSchedulingIsPresentIfScheduledMethodsExist` ensures that the application contains a class annotated with `@EnableScheduling` if any class contains a method annotated with `@Scheduled`.
+This annotation would have no effect if there is no configuration class annotated with `@EnableScheduling`.
+The rule has no effect if no method annotated with `@Scheduled` exists.
+
 === Spring Retry
 
 ==== SpringRetryRules
