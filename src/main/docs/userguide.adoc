@@ -158,6 +158,53 @@ They should not depend on controller classes or configuration classes.
 The rule `SpringComponentRules.DependenciesOfRepositories` ensures that all repository classes only depend on other repository classes.
 They should not depend on controller classes, service classes, or configuration classes.
 
+==== SpringControllerRules
+
+===== Rule ControllerNameWithoutRequestMapping
+
+The rule `SpringControllerRules.ControllerNameWithoutRequestMapping` checks that named controllers (`@Controller` or `@RestController` etc.) are also annotated with `@RequestMapping` to avoid misinterpretation of the name as a path mapping.
+
+Consider the following example:
+[source,java]
+----
+@RestController("/hello")
+class HelloController {
+
+    @GetMapping
+    String hello() {
+        return "Hello World";
+    }
+}
+----
+
+At first glance, this looks correct.
+However, a request to `GET /hello` would return HTTP 404.
+The developer probably intended to write:
+
+[source,java]
+----
+@RestController
+@RequestMapping("/hello")
+class HelloController {
+
+    @GetMapping
+    String hello() {
+        return "Hello World";
+    }
+}
+----
+
+If developers want to assign a bean name to a controller, it is recommended to clearly separate the name from the path.
+
+[source,java]
+----
+@RestController("hello")
+@RequestMapping("/hello")
+class HelloController {
+    // ...
+}
+----
+
 ==== SpringScheduledRules
 
 ===== Rule EnableSchedulingIsPresentIfScheduledMethodsExist
