@@ -69,7 +69,8 @@ public final class SpringAsyncRules {
      */
     public static final ArchRule AsyncMethodsAreProxyable = all(availableMethods())
             .that(are(consideredAsAsynchronous()))
-            .should(beProxyable());
+            .should(beProxyable())
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that methods that are {@link SpringAsyncPredicates#consideredAsAsynchronous() considered as asynchronous}
@@ -82,7 +83,8 @@ public final class SpringAsyncRules {
      */
     public static final ArchRule AsyncMethodsHaveSuitableReturnType = methods()
             .that(are(consideredAsAsynchronous()))
-            .should(haveRawReturnType(assignableTo(Void.TYPE).or(assignableTo(Future.class))).as("have return type void or java.util.concurrent.Future"));
+            .should(haveRawReturnType(assignableTo(Void.TYPE).or(assignableTo(Future.class))).as("have return type void or java.util.concurrent.Future"))
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that methods that are {@link SpringAsyncPredicates#consideredAsAsynchronous() considered as asynchronous}
@@ -96,7 +98,8 @@ public final class SpringAsyncRules {
      */
     public static final ArchRule AsyncMethodsNotCalledFromSameClass = all(availableMethods())
             .that(are(consideredAsAsynchronous()))
-            .should(notBeCalledFromWithinTheSameClass());
+            .should(notBeCalledFromWithinTheSameClass())
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that the application contains a class annotated with {@code @EnableAsync} if any class
@@ -108,7 +111,8 @@ public final class SpringAsyncRules {
      */
     public static final ArchRule EnableAsyncIsPresentIfAsyncMethodsExist = classes()
             .should(haveEnableAsyncPresentIfAsyncMethodsExist())
-            .as("application should contain a class annotated with @EnableAsync if any method is annotated with @Async");
+            .as("application should contain a class annotated with @EnableAsync if any method is annotated with @Async")
+            .allowEmptyShould(true);
 
     /**
      * A condition that checks that the given classes contain a class annotated with {@code @EnableAsync} if any class

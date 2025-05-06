@@ -60,7 +60,8 @@ public final class SpringBootRules {
      */
     public static final ArchRule AllTypesInApplicationPackage = classes()
             .should(beInApplicationPackage())
-            .as("all types of a Spring Boot application should be located in the same package or a sub-package of the application class");
+            .as("all types of a Spring Boot application should be located in the same package or a sub-package of the application class")
+            .allowEmptyShould(true);
 
     /**
      * A condition that checks that the given classes are located in the same package or a sub-package of the application class.
@@ -111,7 +112,8 @@ public final class SpringBootRules {
      */
     public static final ArchRule ApplicationHasOnlyOneSpringBootConfiguration = classes()
             .should(haveOnlyOneSpringBootConfiguration())
-            .as("application should have only one class annotated with @SpringBootApplication or @SpringBootConfiguration");
+            .as("application should have only one class annotated with @SpringBootApplication or @SpringBootConfiguration")
+            .allowEmptyShould(true);
 
     /**
      * A condition that checks that at most one class within the given classes is annotated with

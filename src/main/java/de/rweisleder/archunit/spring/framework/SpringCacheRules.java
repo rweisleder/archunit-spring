@@ -61,7 +61,8 @@ public final class SpringCacheRules {
      */
     public static final ArchRule CacheableMethodsAreProxyable = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.cache.annotation.Cacheable")))
-            .should(beProxyable());
+            .should(beProxyable())
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that methods annotated with {@code @Cacheable} are not called from within the same class.
@@ -89,7 +90,8 @@ public final class SpringCacheRules {
      */
     public static final ArchRule CacheableMethodsNotCalledFromSameClass = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.cache.annotation.Cacheable")))
-            .should(notBeCalledFromWithinTheSameClass());
+            .should(notBeCalledFromWithinTheSameClass())
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that the application contains a class annotated with {@code @EnableCaching} if any class
@@ -100,7 +102,8 @@ public final class SpringCacheRules {
      */
     public static final ArchRule EnableCachingIsPresentIfCacheableMethodsExist = classes()
             .should(haveEnableCachingPresentIfCacheableMethodsExist())
-            .as("application should contain a class annotated with @EnableCaching if any method is annotated with @Cacheable");
+            .as("application should contain a class annotated with @EnableCaching if any method is annotated with @Cacheable")
+            .allowEmptyShould(true);
 
     /**
      * A condition that checks that the given classes contain a class annotated with {@code @EnableCaching} if any class

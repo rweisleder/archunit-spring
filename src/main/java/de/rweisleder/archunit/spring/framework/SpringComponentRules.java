@@ -53,7 +53,8 @@ public final class SpringComponentRules {
             .should(not(dependOnClassesThat(
                     are(springController().or(springConfiguration()))
             )))
-            .as("Spring controller should only depend on other Spring components that are services or repositories");
+            .as("Spring controller should only depend on other Spring components that are services or repositories")
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that all {@link SpringComponentPredicates#springService() service classes}
@@ -67,7 +68,8 @@ public final class SpringComponentRules {
             .should(not(dependOnClassesThat(
                     are(springController().or(springConfiguration()))
             )))
-            .as("Spring services should only depend on other Spring components that are services or repositories");
+            .as("Spring services should only depend on other Spring components that are services or repositories")
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that all {@link SpringComponentPredicates#springRepository() repository classes}
@@ -81,5 +83,6 @@ public final class SpringComponentRules {
             .should(not(dependOnClassesThat(
                     are(springController().or(springService()).or(springConfiguration()))
             )))
-            .as("Spring repositories should only depend on other Spring components that are repositories");
+            .as("Spring repositories should only depend on other Spring components that are repositories")
+            .allowEmptyShould(true);
 }

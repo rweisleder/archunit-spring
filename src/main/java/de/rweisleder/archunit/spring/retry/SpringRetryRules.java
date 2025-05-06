@@ -63,7 +63,8 @@ public final class SpringRetryRules {
      */
     public static final ArchRule RetryableMethodsAreProxyable = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.retry.annotation.Retryable")))
-            .should(beProxyable());
+            .should(beProxyable())
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that methods annotated with {@code @Retryable} are not called from within the same class.
@@ -92,7 +93,8 @@ public final class SpringRetryRules {
      */
     public static final ArchRule RetryableMethodsNotCalledFromSameClass = all(availableMethods())
             .that(are(springAnnotatedWith("org.springframework.retry.annotation.Retryable")))
-            .should(notBeCalledFromWithinTheSameClass());
+            .should(notBeCalledFromWithinTheSameClass())
+            .allowEmptyShould(true);
 
     /**
      * A rule that checks that the application contains a class annotated with {@code @EnableRetry} if any class
@@ -103,7 +105,8 @@ public final class SpringRetryRules {
      */
     public static final ArchRule EnableRetryIsPresentIfRetryableMethodsExist = classes()
             .should(haveEnableRetryPresentIfRetryableMethodsExist())
-            .as("application should contain a class annotated with @EnableRetry if any method is annotated with @Retryable");
+            .as("application should contain a class annotated with @EnableRetry if any method is annotated with @Retryable")
+            .allowEmptyShould(true);
 
     /**
      * A condition that checks that the given classes contain a class annotated with {@code @EnableRetry} if any class

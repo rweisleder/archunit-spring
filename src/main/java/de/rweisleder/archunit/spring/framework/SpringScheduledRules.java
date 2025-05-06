@@ -54,7 +54,8 @@ public final class SpringScheduledRules {
      */
     public static final ArchRule EnableSchedulingIsPresentIfScheduledMethodsExist = classes()
             .should(haveEnableSchedulingPresentIfScheduledMethodsExist())
-            .as("application should contain a class annotated with @EnableScheduling if any method is annotated with @Scheduled");
+            .as("application should contain a class annotated with @EnableScheduling if any method is annotated with @Scheduled")
+            .allowEmptyShould(true);
 
     /**
      * A condition that checks that the given classes contain a class annotated with {@code @EnableScheduling} if any class
