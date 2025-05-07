@@ -91,6 +91,23 @@ The rule `SpringAsyncRules.AsyncMethodsAreProxyable` ensures that Spring can cre
 
 The easiest way to fulfill this rule is to make these methods public and not final and the bean classes containing these methods also not final.
 
+[source,java]
+----
+@Service
+public class HelloService {
+
+    @Async // violation because the method is final
+    public final void calculateHelloMessage() {
+        // ...
+    }
+
+    @Async // good
+    public void calculateHelloMessage() {
+        // ...
+    }
+}
+----
+
 If Spring can not create a proxy for a method, this can lead to an exception when starting the context or to unexpected behavior when calling the method during runtime.
 
 ===== Rule AsyncMethodsHaveSuitableReturnType
@@ -99,6 +116,23 @@ The rule `SpringAsyncRules.AsyncMethodsHaveSuitableReturnType` ensures that meth
 
 It is most convenient that such methods return `void` or an object implementing `java.util.concurrent.Future`.
 
+[source,java]
+----
+@Service
+public class HelloService {
+
+    @Async // violation because Spring discards the return value
+    public String createHelloMessage() {
+        // ...
+    }
+
+    @Async // good
+    public Future<String> createHelloMessage() {
+        // ...
+    }
+}
+----
+
 If such methods have other return types, Spring may discard the return value or calling such a method may lead to an exception.
 
 ===== Rule AsyncMethodsNotCalledFromSameClass
@@ -106,12 +140,47 @@ If such methods have other return types, Spring may discard the return value or 
 The rule `SpringAsyncRules.AsyncMethodsNotCalledFromSameClass` ensures that methods annotated with `@Async` or `@Asynchronous` (directly or at class level) are not called from within the same class.
 Such internal calls bypass Spring's proxy mechanism, causing the intended asynchronous behavior to be ignored.
 
+[source,java]
+----
+@Service
+public class HelloService {
+
+    public void sendHelloMessage() {
+        Future<String> helloText = createHelloText(); // violation, because it's ambiguous if this method call is asynchronous or not (hint: it's synchronous)
+    }
+
+    @Async
+    public Future<String> createHelloText() {
+        // ...
+    }
+}
+----
+
 This rule should only be used if asynchronous method execution is used in proxy mode (which is the default mode), see the `@EnableAsync` annotation.
 
 ===== Rule EnableAsyncIsPresentIfAsyncMethodsExist
 
 The rule `SpringAsyncRules.EnableAsyncIsPresentIfAsyncMethodsExist` ensures that the application contains a class annotated with `@EnableAsync` if any class contains a method annotated with `@Async`.
 The annotations for asynchronous method execution would have no effect if there is no configuration class annotated with `@EnableAsync`.
+
+[source,java]
+----
+@Configuration
+@EnableAsync
+public class AsyncConfiguration {
+    // ...
+}
+
+@Service
+public class HelloService {
+
+    @Async
+    public Future<String> createHelloMessage() {
+        // ...
+    }
+}
+----
+
 The rule has no effect if no method annotated with `@Async` exists.
 
 ==== SpringCacheRules
@@ -122,6 +191,23 @@ The rule `SpringCacheRules.CacheableMethodsAreProxyable` ensures that Spring can
 
 The easiest way to fulfill this rule is to make these methods public and not final and the bean classes containing these methods also not final.
 
+[source,java]
+----
+@Service
+public class HelloService {
+
+    @Cacheable("helloMessage") // violation because the method is final
+    public final String calculateHelloMessage() {
+        // ...
+    }
+
+    @Cacheable("helloMessage") // good
+    public String calculateHelloMessage() {
+        // ...
+    }
+}
+----
+
 If Spring can not create a proxy for a method, this can lead to an exception when starting the context or to unexpected behavior when calling the method during runtime.
 
 ===== Rule CacheableMethodsNotCalledFromSameClass
@@ -129,12 +215,47 @@ If Spring can not create a proxy for a method, this can lead to an exception whe
 The rule `SpringCacheRules.CacheableMethodsNotCalledFromSameClass` ensures that methods annotated with `@Cacheable` are not called from within the same class.
 Such internal calls bypass Spring's proxy mechanism, causing the intended caching behavior to be ignored.
 
+[source,java]
+----
+@Service
+public class HelloService {
+
+    public String calculateHelloMessage() {
+        String helloRecipients = calculateHelloRecipients(); // violation, because it's ambiguous if this method call goes through the cache or not (hint: it ignores the cache)
+    }
+
+    @Cacheable("helloRecipients")
+    public String calculateHelloRecipients() {
+        // ...
+    }
+}
+----
+
 This rule should only be used if caching is used in proxy mode (which is the default mode), see the `@EnableCaching` annotation.
 
 ===== Rule EnableCachingIsPresentIfCacheableMethodsExist
 
 The rule `SpringCacheRules.EnableCachingIsPresentIfCacheableMethodsExist` ensures that the application contains a class annotated with `@EnableCaching` if any class contains a method annotated with `@Cacheable`.
 The annotation for caching would have no effect if there is no configuration class annotated with `@EnableCaching`.
+
+[source,java]
+----
+@Configuration
+@EnableCaching
+public class CachingConfiguration {
+    // ...
+}
+
+@Service
+public class HelloService {
+
+    @Cacheable("helloMessage")
+    public String calculateHelloMessage() {
+        // ...
+    }
+}
+----
+
 The rule has no effect if no method annotated with `@Cacheable` exists.
 
 ==== SpringComponentPredicates
@@ -148,15 +269,60 @@ The class `SpringComponentPredicates` contains predefined predicates to match th
 The rule `SpringComponentRules.DependenciesOfControllers` ensures that all controller classes only depend on service classes or repository classes.
 They should not depend on other controller classes or configuration classes.
 
+[source,java]
+----
+@Controller
+public class HelloController {
+
+    HelloService helloService; // good (if annotated with @Service)
+
+    HelloRepository helloRepository; // good (if annotated with @Repository)
+
+    GoodbyeController goodbyeController; // violation (if annotated with @Controller)
+
+    HelloConfiguration helloConfiguration; // violation (if annotated with @Configuration)
+}
+----
+
 ===== Rule DependenciesOfServices
 
 The rule `SpringComponentRules.DependenciesOfServices` ensures that all service classes only depend on other service classes or repository classes.
 They should not depend on controller classes or configuration classes.
 
+[source,java]
+----
+@Service
+public class HelloService {
+
+    HelloRepository helloRepository; // good (if annotated with @Repository)
+
+    GoodbyeService goodbyeService; // good (if annotated with @Service)
+
+    HelloController helloController; // violation (if annotated with @Controller)
+
+    HelloConfiguration helloConfiguration; // violation (if annotated with @Configuration)
+}
+----
+
 ===== Rule DependenciesOfRepositories
 
 The rule `SpringComponentRules.DependenciesOfRepositories` ensures that all repository classes only depend on other repository classes.
 They should not depend on controller classes, service classes, or configuration classes.
+
+[source,java]
+----
+@Repository
+public class HelloRepository {
+
+    GoodbyeRepository goodbyeRepository; // good (if annotated with @Repository)
+
+    HelloService helloService; // violation (if annotated with @Service)
+
+    HelloController helloController; // violation (if annotated with @Controller)
+
+    HelloConfiguration helloConfiguration; // violation (if annotated with @Configuration)
+}
+----
 
 ==== SpringControllerRules
 
@@ -211,6 +377,25 @@ class HelloController {
 
 The rule `SpringScheduledRules.EnableSchedulingIsPresentIfScheduledMethodsExist` ensures that the application contains a class annotated with `@EnableScheduling` if any class contains a method annotated with `@Scheduled`.
 This annotation would have no effect if there is no configuration class annotated with `@EnableScheduling`.
+
+[source,java]
+----
+@Configuration
+@EnableScheduling
+public class SchedulingConfiguration {
+    // ...
+}
+
+@Service
+public class HelloService {
+
+    @Scheduled(/* ... */)
+    public void sendHelloMessages() {
+        // ...
+    }
+}
+----
+
 The rule has no effect if no method annotated with `@Scheduled` exists.
 
 === Spring Retry
@@ -225,17 +410,70 @@ The easiest way to fulfill this rule is to make these methods public and not fin
 
 If Spring can not create a proxy for a method, this can lead to an exception when starting the context or to unexpected behavior when calling the method during runtime.
 
+[source,java]
+----
+@Service
+public class HelloService {
+
+    @Retryable // violation because the method is final
+    public final String calculateHelloMessage() {
+        // ...
+    }
+
+    @Retryable // good
+    public String calculateHelloMessage() {
+        // ...
+    }
+}
+----
+
 ===== Rule RetryableMethodsNotCalledFromSameClass
 
 The rule `SpringRetryRules.RetryableMethodsNotCalledFromSameClass` ensures that methods annotated with `@Retryable` are not called from within the same class.
 Such internal calls bypass Spring's proxy mechanism, causing the intended retry behavior to be ignored.
 
+[source,java]
+----
+@Service
+public class HelloService {
+
+    public String calculateHelloMessage() {
+        String helloRecipients = calculateHelloRecipients(); // violation, because it's ambiguous if this method call will be retried on exception or not (hint: it will not be retried)
+        // ...
+    }
+
+    @Retryable
+    public String calculateHelloRecipients() {
+        // ...
+    }
+}
+----
+
 This rule should only be used if retrying is used in proxy mode (which is the default mode), see the `@EnableRetry` annotation.
 
 ===== Rule EnableRetryIsPresentIfRetryableMethodsExist
 
-The rule `SpringRetryRules.EnableRetryIsPresentIfRetryableMethodsExist` ensures that the application contains a class annotated with `@RetryCaching` if any class contains a method annotated with `@Retryable`.
+The rule `SpringRetryRules.EnableRetryIsPresentIfRetryableMethodsExist` ensures that the application contains a class annotated with `@EnableRetry` if any class contains a method annotated with `@Retryable`.
 The annotation for retry would have no effect if there is no configuration class annotated with `@EnableRetry`.
+
+[source,java]
+----
+@Configuration
+@EnableRetry
+public class RetryConfiguration {
+    // ...
+}
+
+@Service
+public class HelloService {
+
+    @Retryable
+    public String calculateHelloMessage() {
+        // ...
+    }
+}
+----
+
 The rule has no effect if no method annotated with `@Retryable` exists.
 
 === Spring Boot
