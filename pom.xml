@@ -295,16 +295,12 @@
                                 </signing>
                                 <deploy>
                                     <maven>
-                                        <nexus2>
-                                            <maven-central>
-                                                <active>ALWAYS</active>
-                                                <url>https://s01.oss.sonatype.org/service/local</url>
-                                                <applyMavenCentralRules>true</applyMavenCentralRules>
-                                                <closeRepository>true</closeRepository>
-                                                <releaseRepository>true</releaseRepository>
-                                                <stagingRepositories>target/staging-deploy</stagingRepositories>
-                                            </maven-central>
-                                        </nexus2>
+                                        <mavenCentral>
+                                            <active>ALWAYS</active>
+                                            <url>https://central.sonatype.com/api/v1/publisher</url>
+                                            <applyMavenCentralRules>true</applyMavenCentralRules>
+                                            <stagingRepositories>target/staging-deploy</stagingRepositories>
+                                        </mavenCentral>
                                     </maven>
                                 </deploy>
                             </jreleaser>
