@@ -26,7 +26,7 @@ Given the following class:
 [source,java]
 ----
 @RestController
-class DemoRestController {
+class HelloRestController {
 
     @GetMapping("/hello")
     String hello() {
@@ -46,6 +46,47 @@ methods()
     .that(are(springAnnotatedWith(RequestMapping.class)))
     // "should be declared in classes that are annotated with @Controller" (or @RestController etc.)
     .should().beDeclaredInClassesThat(are(springAnnotatedWith(Controller.class)));
+----
+
+Unlike other rule libraries focused on architecture, this one encourages Spring-specific best practices and helps detect subtle bugs and antipatterns.
+
+How about this?
+
+[source,java]
+----
+@RestController("/hello")
+class HelloRestController {
+
+    @GetMapping
+    String hello() {
+        return "Hello World";
+    }
+}
+----
+
+Noticed the issue?
+A request to `GET /hello` would return HTTP 404.
+
+Spring does not use the bean name in `@RestController("...")` as a path mapping.
+The developer probably intended to write:
+
+[source,java]
+----
+@RestController
+@RequestMapping("/hello")
+class HelloRestController {
+    // ...
+}
+----
+
+With the predefined rule `SpringControllerRules.ControllerNameWithoutRequestMapping` we've got you covered.
+
+[source,java]
+----
+import de.rweisleder.archunit.spring.framework.SpringControllerRules;
+
+@ArchTest
+ArchRule ControllerNameWithoutRequestMapping = SpringControllerRules.ControllerNameWithoutRequestMapping;
 ----
 
 == User Guide
