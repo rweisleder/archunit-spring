@@ -490,6 +490,87 @@ The application class is the one annotated with `@SpringBootApplication` or `@Sp
 A Spring Boot application should have exactly one class annotated with `@SpringBootConfiguration`, which is typically inherited from `@SpringBootApplication`.
 The rule `SpringBootRules.ApplicationHasOnlyOneSpringBootConfiguration` checks that there is at most one such class within the analyzed codebase.
 
+==== SpringConfigurationPropertiesRules
+
+Spring Boot validates a class annotated with `@ConfigurationProperties` only if it is annotated with `@Validated`. Furthermore, Bean Validation only descends into a nested object if the corresponding property is annotated with `@Valid`.
+If one of these annotations is missing, the affected constraints are silently ignored and the application starts with an invalid configuration.
+
+[source,java]
+----
+@ConfigurationProperties("app")
+@Validated // starts the validation of this configuration properties root
+record AppProperties(
+    @NotBlank String name,
+    @Valid Database database // cascades the validation into the nested object
+) {}
+
+record Database( // no @Validated here, nested types are only reached via @Valid
+    @NotBlank String host
+) {}
+----
+
+Both rules recognize constraint annotations by their meta-annotation `jakarta.validation.Constraint`, so custom constraint annotations are supported as well.
+Generic types and arrays are looked into, so constraints like `List<@NotBlank String>` and nested types like `List<Database>` are covered too.
+
+===== Rule ValidatedIsPresentIfConstraintsExist
+
+The rule `SpringConfigurationPropertiesRules.ValidatedIsPresentIfConstraintsExist` ensures that classes annotated with `@ConfigurationProperties` are also annotated with `@Validated` if they declare Bean Validation constraints, either directly or in a nested type.
+
+[source,java]
+----
+@ConfigurationProperties("app") // violation because the constraint below is never validated
+record AppProperties(@NotBlank String name) {}
+
+@ConfigurationProperties("app")
+@Validated // good
+record AppProperties(@NotBlank String name) {}
+
+@ConfigurationProperties("app") // good, there is nothing to validate
+record AppProperties(String name) {}
+----
+
+===== Rule ValidationIsCascadedToNestedTypes
+
+The rule `SpringConfigurationPropertiesRules.ValidationIsCascadedToNestedTypes` ensures that classes annotated with `@ConfigurationProperties` annotate all properties with `@Valid` whose type declares Bean Validation constraints.
+Nested types are checked recursively, so every property leading to a constraint needs to be annotated.
+The elements of generic types and arrays are checked as well:
+
+[source,java]
+----
+@ConfigurationProperties("app")
+@Validated
+record AppProperties(
+    List<Database> databases // violation because the constraints of Database are never validated
+) {}
+----
+
+Both `@Valid List<Database>` and `List<@Valid Database>` fulfill the rule, as Bean Validation cascades into the elements in either case.
+
+[source,java]
+----
+@ConfigurationProperties("app")
+@Validated
+record AppProperties(
+    Database database // violation because the constraints of Database are never validated
+) {}
+
+record Database(@NotBlank String host) {}
+----
+
+Adding `@Validated` to `Database` is not the intended solution, because Spring Boot only applies it to the class it binds, which is `AppProperties`.
+The nested object is reached by annotating the property with `@Valid`:
+
+[source,java]
+----
+@ConfigurationProperties("app")
+@Validated
+record AppProperties(
+    @Valid Database database // good
+) {}
+
+record Database(@NotBlank String host) {}
+----
+
 == Compatibility and Support
 
 === Open Source Edition

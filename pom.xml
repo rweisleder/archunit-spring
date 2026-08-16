@@ -24,7 +24,9 @@
     <properties>
         <archunit.version>1.4.2</archunit.version>
         <assertj.version>3.27.7</assertj.version>
+        <jakarta-validation.version>3.1.1</jakarta-validation.version>
         <junit-jupiter.version>5.14.4</junit-jupiter.version>
+        <spring-boot.version>4.1.0</spring-boot.version>
         <spring-framework.version>7.0.8</spring-framework.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -73,6 +75,19 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>${jakarta-validation.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- For ConfigurationProperties annotation in tests -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -84,6 +99,8 @@
                     <version>3.15.0</version>
                     <configuration>
                         <release>8</release>
+                        <!-- The test code uses records to check the rules against record-based configuration properties. -->
+                        <testRelease>17</testRelease>
                     </configuration>
                 </plugin>
                 <plugin>
